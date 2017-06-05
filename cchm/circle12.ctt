@@ -1,0 +1,50 @@
+module circle12 where
+
+import prelude
+import s1
+import spheres
+import susp
+
+S1_1_to_2 : S1 -> Susp Bool = split
+  base -> north
+  loop @ x -> comp (<_> Susp Bool)
+                   (merid{Susp Bool} true @ x)
+                   [(x=0) -> <_> north , (x=1) -> <x> (merid{Susp Bool} false @ -x)]
+
+S1_2_to_1_b : Bool -> Path S1 base base = split 
+  true -> <x> loop{S1} @ x
+  false -> <_> base
+
+S1_2_to_1 : Susp Bool -> S1 = split
+  north -> base
+  south -> base
+  merid b @ x -> S1_2_to_1_b b @ x
+
+-- S1_1_to_2_c1 : (x : S1) -> Path S1 (S1_2_to_1 (S1_1_to_2 x)) x = 
+-- split
+--   base -> <_> base
+--   loop @ x -> ?
+
+-- S1_1_to_2_c2_merid : (b : Bool) 
+--                -> PathP (<x> Path (Susp Bool) (S1_1_to_2 (S1_2_to_1_b b @ x)) (merid{Susp Bool} b @ x))
+--                       (<_> north)
+--                       (<x> merid{Susp Bool} false @ x) = ?
+-- split
+--   true -> <x><y>
+--      eliminate_composite_top_right 
+--        (Susp Bool) north north north south
+--        (<x> merid {Susp (Bool)} true @ x)
+--        (<x> merid {Susp (Bool)} true @ x)
+--        (<_> north)
+--        (<x> merid {Susp (Bool)} false @ x)
+--        (<x><_> merid{Susp Bool} true @ x) @ x @ y
+--   false -> <x><y> merid{Susp Bool} false @ (x/\y)
+
+-- S1_1_to_2_c2 : (x : Susp Bool) -> Path (Susp Bool) (S1_1_to_2 (S1_2_to_1 x)) x = 
+--  split
+--   north -> <_> north
+--   south -> <x> merid{Susp Bool} false @ x
+--   merid b @ x -> S1_1_to_2_c2_merid b @ x
+
+S1_1_is_S1_2 : Path U S1 (Susp Bool) = ?
+  -- ua S1 (Susp Bool) S1_1_to_2 S1_2_to_1 S1_1_to_2_c2 S1_1_to_2_c1

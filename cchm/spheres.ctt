@@ -1,0 +1,36 @@
+module spheres where
+
+import prelude
+import pointedtypes
+import s1
+import susp
+
+S2 : U = Susp S1
+S3 : U = Susp S2
+
+S1P : PointedType = (S1, base)
+
+S2P : PointedType = SuspP S1P
+
+OmegaS1_to_Omega2S2 : PointedMap (Omega S1P) (Omega (Omega S2P)) = OmegaF S1P (Omega S2P) (meridP S1P)
+
+loopS2 : (Omega(Omega(S2P))).1 = OmegaS1_to_Omega2S2.1 loopS1
+-- seems a little more complicated than what I wrote by hand?
+-- loopS2_1' : Path (Path S2 north north) 
+--                (<y> comp S2 (merid{S2} base @ y) [ (y = 1) -> <y> merid{S2} base @ -y ])
+--                (<y> comp S2 (merid{S2} base @ y) [ (y = 1) -> <y> merid{S2} base @ -y ]) =
+--          <x> <y> comp S2 (merid{S2} (loop{S1} @x) @ y) [ (y = 1) -> <y> merid{S2} base @ -y ]
+-- loopS2 : Path (Path S2 north north) (<_> north) (<_> north) = 
+--     <z> comp (Path S2 north north) 
+--              (loopS2_1' @ z)
+--              [(z = 0) -> comp_inv_r S2 north south (<y> merid{S2} base @ y),
+--               (z = 1) -> comp_inv_r S2 north south (<y> merid{S2} base @ y)]
+
+S3P : PointedType = SuspP S2P
+
+Omega2S2_to_Omega3S3 : PointedMap (Omega (Omega S2P)) (Omega (Omega (Omega S3P))) = 
+                     OmegaF (Omega S2P) (Omega (Omega S3P)) (OmegaF S2P (Omega S3P) (meridP S2P))
+
+loopS3 : Path (Path (Path S3 north north) (<_> north) (<_> north)) (<_> <_> north) (<_> <_> north) = 
+         Omega2S2_to_Omega3S3.1 loopS2
+

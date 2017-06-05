@@ -1,0 +1,14 @@
+module rsusp where
+
+import prelude
+import pointedtypes
+
+data RSusp (A : PointedType) = north
+                             | merid (a:A.1) <i> [(i=0) -> north, (i=1) -> north]
+                             | meridpt <x y> [(x=0) -> merid{RSusp A} A.2 @ y, 
+                                              (x=1) -> north, 
+                                              (y=0) -> north,
+                                              (y=1) -> north]
+
+RSuspP (A : PointedType) : PointedType = (RSusp A, north)
+

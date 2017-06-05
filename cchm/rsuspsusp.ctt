@@ -1,0 +1,75 @@
+module rsuspsusp where
+
+import pointedtypes
+import susp
+import rsusp
+
+Susp_to_RSusp (A : PointedType) : Susp A.1 -> RSusp A = split
+  north -> north
+  south -> north
+  merid a @ x -> merid{RSusp A} a @ x
+
+RSusp_to_Susp (A : PointedType) : RSusp A -> Susp A.1 = split
+  north -> north
+  merid a @ x -> comp (<_> Susp A.1) (merid{Susp A.1} a @ x) [(x=0) -> <_> north , (x=1) -> <x> merid{Susp A.1} A.2 @ -x]
+  meridpt @ x y -> ? -- comp_inv_r (Susp A.1) north south (<x> merid{Susp A.1} A.2 @ x) @ x @ y
+
+-- Susp_RSusp_c1 (A : PointedType) : (a : Susp A.1) -> Path (Susp A.1) (RSusp_to_Susp A (Susp_to_RSusp A a)) a = split
+--   north -> <_> north
+--   south -> <x> merid{Susp A.1} A.2 @ x
+--   merid a @ x -> <y> eliminate_composite_top_right (Susp A.1) north north north south
+--                                                (<x> merid {Susp (A.1)} a @ x)
+--                                                (<x> merid {Susp (A.1)} a @ x)
+--                                                (<_> north)
+--                                                (<x> merid {Susp (A.1)} A.2 @ x)
+--                                                (<x><y> merid {Susp (A.1)} a @ x)  @ x @ y
+
+-- Susp_RSusp_c2 (A : PointedType) : (a : RSusp A) -> Path (RSusp A) (Susp_to_RSusp A (RSusp_to_Susp A a)) a = split
+--    north -> <_> north 
+--    merid a @ x -> 
+--      -- ap of composite on meridpt
+--      <y> (comp (RSusp (A)) (merid {RSusp A} a @ x) [ (x = 1) -> <z> meridpt {RSusp A} @ y @ -z]) 
+--    meridpt @ x y -> <z> 
+--      -- goal reduces to:
+--      -- (z = 0) -> comp_inv_r (RSusp A) north north (<w> merid{RSusp A A.2 @ w) @ x @ y
+--      -- (z = 1) -> (meridpt {RSusp (A)} @ x @ y)
+--      -- (x = 0) -> (<!0> comp (RSusp (A)) (merid {RSusp (A)} (A.2) @ y) [ (y = 1) -> <!1> meridpt {RSusp (A)} @ !0 @ -!1 ])
+--      -- (x = 1) -> <!0> north
+--      -- (y = 0) -> <!0> north
+--      -- (y = 1) -> <!0> north 
+
+--      comp (RSusp A)
+--          (
+--          -- this has all the right faces except
+--          --   (x = 0) -> <!0> comp (RSusp (A)) 
+--          --                        (meridpt {RSusp (A)} @ -!0 @ y) 
+--          --                        [ (!0 = 0) -> <!1> comp (RSusp (A))
+--          --                                                (meridpt {RSusp (A)} @ -!1 @ y)
+--          --                                                [ (y = 1) -> <!2> meridpt {RSusp (A)} @ -!1 @ -!2 ] ]
+--          comp (RSusp A)
+--               (meridpt {RSusp (A)} @ (x\/-z) @ y) -- start with connection with this on the top and left
+--               -- fix bottom face
+--               [(z=0) -> -- ap onto replacing merid A.2 with refl 
+--                          <z> comp_inv_r (RSusp A) north north (<w> meridpt{RSusp A} @ -z @ w) @ x @ y
+--               ]
+--           )
+--           [
+--             (x=0) -> <x> leftadjust STUCK @ -x @ y @ -z
+--           ] where 
+--           leftadjust : Unit 
+--                     -> Path (PathP(<x> Path (RSusp A)
+--                                      (merid{RSusp A} A.2 @ x)
+--                                      (comp (RSusp A) (merid{RSusp A} A.2 @ x) [(x=1) -> <x> (merid{RSusp A} A.2 @ -x)]))
+--                                (<_> north)
+--                                (<_> north))
+--                           (<x> <y> comp (RSusp A) (merid{RSusp A} A.2 @ x) [(x=1) -> <x> meridpt{RSusp A} @ -y @ -x])
+--                           (<x> <y> comp (RSusp A) (meridpt{RSusp A} @ y @ x)
+--                                 [(y=1) -> <z> comp (RSusp A) 
+--                                                    (meridpt{RSusp A} @ -z @ x) 
+--                                                    [(x=1) -> <x> (meridpt{RSusp A} @ -z @ -x)]])
+--                           = split
+--               tt -> ?
+
+
+
+
