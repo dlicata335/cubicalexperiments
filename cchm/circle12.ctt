@@ -4,6 +4,7 @@ import prelude
 import s1
 import spheres
 import susp
+import equiv
 
 S1_1_to_2 : S1 -> Susp Bool = split
   base -> north
@@ -49,7 +50,4 @@ S1_1_to_2_c2 : (x : Susp Bool) -> Path (Susp Bool) (S1_1_to_2 (S1_2_to_1 x)) x =
     merid b @ x -> S1_1_to_2_c2_merid b @ x
 
 S1_1_is_S1_2 : Path U S1 (Susp Bool) =
-  ua S1 (Susp Bool) ?
-
--- (S1_1_to_2, (S1_2_to_1, (S1_1_to_2_c2, S1_1_to_2_c1)))
---   ua S1 (Susp Bool) S1_1_to_2 S1_2_to_1 S1_1_to_2_c2 S1_1_to_2_c1
+  isoPath S1 (Susp Bool) S1_1_to_2 S1_2_to_1 S1_1_to_2_c2 S1_1_to_2_c1
