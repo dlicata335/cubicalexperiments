@@ -167,17 +167,16 @@ hom_to_het_1_path (A0 : U) : (A1 : U) (A : Path U A0 A1) (a0 : A0) (a1 : A1) -> 
       (a0 : A0) (a1 : A1) -> Path U (Path A1 (transport A a0) a1) (PathP A a0 a1))
    (\ (a0 : A0) (a1 : A0) -> <x> Path A0 (fill (<_> A0) a0 [] @ -x) a1)
 
-hom_to_het_1 (A0 : U) (A1 : U) (A : Path U A0 A1)
-                (a0 : A0) (a1 : A1)
-                (p : Path A1 (transport A a0) a1) : PathP A a0 a1 = ?
-  -- transport (hom_to_het_1_path A0 A1 A a0 a1) p
+hom_to_het_1 (A0 : U) (A1 : U) (A : Path U A0 A1) (a0 : A0) (a1 : A1) (p : Path A1 (transport A a0) a1) : PathP A a0 a1 =
+  transport (hom_to_het_1_path A0 A1 A a0 a1) p
 
-hom_to_het_0_path (A0 : U) : (A1 : U) (A : Path U A0 A1)
-                (a0 : A0) (a1 : A1) ->
-                Path U (Path A0 a0 (transport (<x> A @ -x) a1)) (PathP A a0 a1) = ?
-    -- J U A0 (\ (A1 : U) (A : Path U A0 A1) ->
-    --           (a0 : A0) (a1 : A1) -> Path U (Path A0 a0 (transport (<x> A @ -x) a1)) (PathP A a0 a1))
-    --        (\ (a0 : A0) (a1 : A0) -> <_> (Path A0 a0 a1) )
+
+hom_to_het_0_path (A0 : U) : (A1 : U) (A : Path U A0 A1) (a0 : A0) (a1 : A1) -> Path U (Path A0 a0 (transport (<x> A @ -x) a1)) (PathP A a0 a1) =
+  J U A0
+    (\ (A1 : U) (A : Path U A0 A1) ->
+       (a0 : A0) (a1 : A1) -> Path U (Path A0 a0 (transport (<x> A @ -x) a1)) (PathP A a0 a1))
+    (\ (a0 : A0) (a1 : A0) -> <x> Path A0 a0 (fill (<_> A0) a1 [] @ -x))
+
 
 move_transport_right_path (A0 : U) (A1 : U) (A : Path U A0 A1)
                           (a0 : A0) (a1 : A1) :
