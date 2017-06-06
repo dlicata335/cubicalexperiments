@@ -4,26 +4,27 @@ import join
 import equiv
 
 rearrange_path (A : U) (t0 : A) (b0 b1 : A)
-             (bot : Path A b0 b1)
+               (bot : Path A b0 b1)
+               (left : Path A t0 b0)
+               (right : Path A t0 b1) :
+               Path U (PathP (<x> Path A t0 (bot @ x)) left right)
+                      (PathP (<x> Path A (left @ x) b1) right bot) =
+ J A b0 (\ (b1 : A) (bot : Path A b0 b1) ->
              (left : Path A t0 b0)
-             (right : Path A t0 b1) :
+             (right : Path A t0 b1) ->
              Path U (PathP (<x> Path A t0 (bot @ x)) left right)
-                  (PathP (<x> Path A (left @ x) b1) right bot) = undefined
- -- J A b0 (\ (b1 : A) (bot : Path A b0 b1) ->
- --             (left : Path A t0 b0)
- --             (right : Path A t0 b1) ->
- --             Path U (PathP (<x> Path A t0 (bot @ x)) left right)
- --                  (PathP (<x> Path A (left @ x) b1) right bot))
- --        (\ (left : Path A t0 b0)
- --           (right : Path A t0 b0) ->
- --             J A t0 (\ (b0 : A) (left : Path A t0 b0) ->
- --                       (right : Path A t0 b0) ->
- --                         Path U (PathP (<x> Path A t0 b0) left right)
- --                              (PathP (<x> Path A (left @ x) b0) right (<_> b0)))
- --                (\ (right : Path A t0 t0) ->
- --                   inv (Path A t0 t0) (<_> t0) right)
- --                b0 left right)
- --        b1 bot left right
+                  (PathP (<x> Path A (left @ x) b1) right bot))
+        (\ (left : Path A t0 b0)
+           (right : Path A t0 b0) ->
+             J A t0 (\ (b0 : A) (left : Path A t0 b0) ->
+                       (right : Path A t0 b0) ->
+                         Path U (PathP (<x> Path A t0 b0) left right)
+                              (PathP (<x> Path A (left @ x) b0) right (<_> b0)))
+                (\ (right : Path A t0 t0) -> inv_path (Path A t0 t0) (<_> t0) right)
+                b0 left right
+           )
+        b1 bot left right
+
 
 rearrange (A : U) (t0 : A) (b0 b1 : A)
           (bot : Path A b0 b1)
