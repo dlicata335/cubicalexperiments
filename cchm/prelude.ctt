@@ -23,6 +23,28 @@ HProp (A : U) : U = (a b : A) -> Path A a b
 HSet (A : U) : U = (a b : A) -> HProp (Path A a b)
 OneType (A : U) : U = (a b : A) -> HSet (Path A a b)
 
+-- --------------------------------------------------------------------
+-- Sigma types
+
+
+lemPropF (A : U) (P : A -> U) (pP : (x : A) -> HProp (P x)) (a0 a1 :A)
+         (p : Path A a0 a1) (b0 : P a0) (b1 : P a1) : PathP (<i>P (p@i)) b0 b1 =
+ <i>pP (p@i) (comp (<j>P (p@i/\j)) b0 [(i=0) -> <_>b0]) (comp (<j>P (p@i\/-j)) b1 [(i=1) -> <_>b1])@i
+
+-- other proof
+-- lemPropF (A : U) (P : A -> U) (pP : (x : A) -> HProp (P x)) (a :A) :
+--          (a1 : A) (p : Path A a a1) (b0 : P a) (b1 : P a1) -> PathP (<i>P (p@i)) b0 b1 =
+-- J A a (\ (a1 : A) (p : Path A a a1) ->
+--          (b0 : P a) (b1 : P a1) -> PathP (<i>P (p@i)) b0 b1)
+--   rem
+-- where rem : (b0 b1:P a) -> Path (P a) b0 b1 = pP a
+
+lemSig (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x))
+       (u v : (x:A) * B x) (p : Path A u.1 v.1) :
+       Path ((x:A) * B x) u v =
+  <i> (p@i,(lemPropF A B pB u.1 v.1 p u.2 v.2)@i)
+
+
 -- ----------------------------------------------------------------------
 -- basic types
 
@@ -100,13 +122,8 @@ Singleton (A : U) (a : A) : U = (x : A) * Path A a x
 Singleton_level (A : U) (a : A) : Contractible ((b : A) * Path A a b)  = 
   ( (a , <_> a) , \ (bp : ((b : A) * Path A a b)) -> <x> (bp.2 @ x , <y> bp.2 @ (x/\y)) ) 
 
-J (A : U) (a : A) (C : (x : A) -> Path A a x -> U)
-  (d : C a (refl A a)) (x : A) (p : Path A a x) : C x p = ?
-    -- trans (Singleton A a) T (a, refl A a) (x, p) (Singleton_level A a x p) d
-    --   where T (z : Singleton A a) : U = C (z.1) (z.2)
-
--- JEq (A : U) (a : A) (C : (x : A) -> Path A a x -> U) (d : C a (refl A a))
---   : Path (C a (refl A a)) d (J A a C d a (refl A a)) = ?
+contrSingl (A : U) (a b : A) (p : Path A a b) :
+  Path (Singleton A a) (a,refl A a) (b,p) = <i> (p @ i,<j> p @ i/\j)
 
 inv (A : U) (a b : A) (p : Path A a b) : Path A b a = <i> p @ -i
 
@@ -125,6 +142,24 @@ ap (A : U) (B : A -> U)
 -- coe a : b -> c = (b/\c) \/ (b/\-a) \/ (c/\a)
 -- coe z : x -> 0 = (x/\-z) 
 -- coe z : 1 -> y = y \/ -z \/ (z/\y)
+
+-- subst can be defined using trans:
+substTrans (A : U) (P : A -> U) (a b : A) (p : Path A a b) (e : P a) : P b =
+  trans (P a) (P b) (ap A (\ (x : A) -> U) P a b p) e
+
+substEq (A : U) (P : A -> U) (a : A) (e : P a)
+  : Path (P a) e (substTrans A P a a (refl A a) e) =
+  fill (<i> P a) e []
+
+J (A : U) (a : A) (C : (x : A) -> Path A a x -> U)
+  (d : C a (refl A a)) (x : A) (p : Path A a x) : C x p =
+    substTrans (Singleton A a) T (a, refl A a) (x, p) (contrSingl A a x p) d
+      where T (z : Singleton A a) : U = C (z.1) (z.2)
+
+JEq (A : U) (a : A) (C : (x : A) -> Path A a x -> U) (d : C a (refl A a))
+  : Path (C a (refl A a)) d (J A a C d a (refl A a)) =
+  substEq (Singleton A a) T (a, refl A a) d
+    where T (z : Singleton A a) : U = C (z.1) (z.2)
 
 fill0 (A0 : U) (A1 : U) (A : Path U A0 A1) (a0 : A0) : PathP A a0 (transport A a0) = ?
    -- <x> transport (<y> A @ (x/\y)) a0
@@ -308,20 +343,11 @@ constSquare (A : U) (a : A) (p : Path A a a) : Square A a a a a p p p p =
       (j = 0) -> <k> p @ (i \/ - k),
       (j = 1) -> <k> p @ (i /\ k)]
 
-
-comp_inv_r (A : U) (a0 : A) (a1 : A) (p : Path A a0 a1) :
-           Path (Path A a0 a0) (<y> comp (<_> A) (p @ y) [ (y=0) -> <_> a0, (y = 1) -> <y> p @ -y])
-                               (<_> a0) = 
-  <x> <y> comp (<_> A) (p @ (-x/\y)) [ (y=1) -> <z> p@-(x\/z), (y = 0) -> <_> a0, (x = 1) -> <_> a0]	    
-
-  -- <i j> comp (<_> A) (p @ (-i /\ j)) 
-  --    	     [ (i = 0) -> <_> a0,
-  --    	       (i = 1) -> <k> p @ (j \/ k),
-  -- 	       (j = 0) -> <_> a0
-  -- 	     ]	       	     	      
-
-
-  -- <x> <y> comp (<_> A) (p @ (-x/\y)) [(y=1) -> <z> p@-(x\/z)]
+comp_inv_r (A : U) (a0 : A) (a1 : A) (p : Path A a0 a1) : Path (Path A a0 a0) (<y> comp (<_> A) (p @ y) [ (y=0) -> <_> a0, (y = 1) -> <y> p @ -y]) (<_> a0) =
+  <x y> comp (<_> A) (p @ y /\ -x)
+     [(y = 0) -> <_> a0,
+      (y = 1) -> <z> p @ -z /\ -x,
+      (x = 1) -> <_> a0]
 
 comp_inv_r2 (A : U) (a0 : A) : (a1 : A) (p : Path A a0 a1)
           -> Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> <y> p @ y, (y = 1) -> <y> p @ y ])

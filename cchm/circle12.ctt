@@ -4,55 +4,50 @@ import prelude
 import s1
 import spheres
 import susp
+import equiv
 
-S1_to_suspBool : S1 -> Susp Bool = split
+S1_1_to_2 : S1 -> Susp Bool = split
   base -> north
   loop @ x -> comp (<_> Susp Bool)
                    (merid{Susp Bool} true @ x)
                    [(x=0) -> <_> north , (x=1) -> <x> (merid{Susp Bool} false @ -x)]
 
-suspBool_to_S1_b : Bool -> Path S1 base base = split 
+S1_2_to_1_b : Bool -> Path S1 base base = split
   true -> <x> loop{S1} @ x
-  false -> <_> base 
+  false -> <_> base
 
-suspBool_to_S1 : Susp Bool -> S1 = split
+S1_2_to_1 : Susp Bool -> S1 = split
   north -> base
   south -> base
-  merid b @ x -> suspBool_to_S1_b b @ x
+  merid b @ x -> S1_2_to_1_b b @ x
 
 
-S1_to_suspBool_c1 : (x : S1) -> Path S1 (suspBool_to_S1 (S1_to_suspBool x)) x = 
+
+S1_1_to_2_c1 : (x : S1) -> Path S1 (S1_2_to_1 (S1_1_to_2 x)) x =
   split
-    base -> <_> base
-    loop @ x -> <y> fill (<_> S1) (loop{S1} @ x) [(x = 0) -> <_> base, (x = 1) -> <_> base] @ -y
+    base -> <x> base
+    loop @ i ->
+      <j> (fill (<_>S1) (loop{S1}@i) [(i=0) -> <_> base, (i=1) -> <_> base]) @ -j
 
 
-S1_to_suspBool_c2_merid : (b : Bool) 
-               -> PathP (<x> Path (Susp Bool) (S1_to_suspBool (suspBool_to_S1_b b @ x)) (merid{Susp Bool} b @ x))
-                      (<_> north)
-                      (<x> merid{Susp Bool} false @ x) = 
- split
-   true -> ?
-
-   false -> ?
-
-		        -- true -> <x><y>		      
-			--      eliminate_composite_top_right 
-			--             (Susp Bool) north north north south
-			-- 	    (<x> merid {Susp (Bool)} true @ x)
-			-- 	    (<x> merid {Susp (Bool)} true @ x)
-			-- 	    (<_> north)
-			-- 	    (<x> merid {Susp (Bool)} false @ x)
-			-- 	    (<x><_> merid{Susp Bool} true @ x) @ x @ y
-		        -- false -> <x><y> merid{Susp Bool} false @ (x/\y)
-
--- S1_1_to_2_c2 : (x : Susp Bool) -> Path (Susp Bool) (S1_1_to_2 (S1_2_to_1 x)) x = 
---  split
---   north -> <_> north
---   south -> <x> merid{Susp Bool} false @ x
---   merid b @ x -> S1_1_to_2_c2_merid b @ x
+S1_1_to_2_c2_merid
+  : (b : Bool)
+  -> PathP
+       (<x> Path (Susp Bool) (S1_1_to_2 (S1_2_to_1_b b @ x)) (merid{Susp Bool} b @ x))
+       (<_> north)
+       (<x> merid{Susp Bool} false @ x)
+  =
+  split
+    true -> <x> <y> fill (<_> Susp Bool) (merid{Susp Bool} true @ x) [(x=0) -> <_> north, (x=1) -> <z> merid {Susp Bool} false @ -z] @ -y
+    false -> <x> <y> merid{Susp Bool} false @ (x/\y)
 
 
 
--- S1_1_is_S1_2 : Path U S1 (Susp Bool) = ?
---   -- ua S1 (Susp Bool) S1_1_to_2 S1_2_to_1 S1_1_to_2_c2 S1_1_to_2_c1
+S1_1_to_2_c2 : (x : Susp Bool) -> Path (Susp Bool) (S1_1_to_2 (S1_2_to_1 x)) x =
+  split
+    north -> <_> north
+    south -> <x> merid{Susp Bool} false @ x
+    merid b @ x -> S1_1_to_2_c2_merid b @ x
+
+S1_1_is_S1_2 : Path U S1 (Susp Bool) =
+  isoPath S1 (Susp Bool) S1_1_to_2 S1_2_to_1 S1_1_to_2_c2 S1_1_to_2_c1
