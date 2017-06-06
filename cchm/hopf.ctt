@@ -1,0 +1,12 @@
+module hopf where
+
+import susp
+import s1
+
+S2 : U = Susp S1
+
+hopf : S2 -> U = split
+  north -> S1
+  south -> S1
+  merid a @ x -> rotpath a @ x
+
