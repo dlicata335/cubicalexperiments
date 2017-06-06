@@ -363,8 +363,9 @@ comp_inv_r2 (A : U) (a0 : A) : (a1 : A) (p : Path A a0 a1) -> Path (Path A a1 a1
 -- ----------------------------------------------------------------------
 -- hlevels
 
-raise_Contractible_Prop (A : U) (Alevel : Contractible A) : HProp A = ?
-  -- \ (a : A) (b : A) -> <x> comp (<_> A) (Alevel.2 a @ -x) [(x=1) -> <x> Alevel.2 b @ x]
+raise_Contractible_Prop (A : U) (Alevel : Contractible A) : HProp A =
+  \(a : A) (b : A) ->
+    <x> comp (<_> A) (Alevel.2 a @ -x) [(x = 0) -> <_> a, (x=1) -> <x> Alevel.2 b @ x]
 
 raise_Prop_Set (A : U) (h : HProp A) (a b : A) (p q : Path A a b) : Path (Path A a b) p q =
  <j i> comp (<_> A) a [ (i=0) -> h a a
