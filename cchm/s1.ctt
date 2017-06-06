@@ -38,7 +38,7 @@ loopS1_3 : Path S1 base base = compS1 loopS1_2 loopS1
 -- at this point we have an hspace, so we could use the general proof that rot x and (\ x -> rot x y) 
 -- are equivalences.  however, it's simpler to inline the connectedness argument for this case
 
-rotIsEquiv_loop : PathP (<x> IsEquiv S1 S1 (rot (loopS1 @ x))) (idfun_IsEquiv S1) (idfun_IsEquiv S1) = ?
+rotIsEquiv_loop : PathP (<x> IsEquiv S1 S1 (rot (loopS1 @ x))) (lemSinglContr S1) (lemSinglContr S1) = ?
   -- <x> use_IsEquiv_level_het S1 S1 (\ (x : S1) -> x) (\ (x : S1) -> x) (<x> rot (loop{S1} @ x)) (idfun_IsEquiv S1) (idfun_IsEquiv S1) @ x 
 
 -- rotIsEquiv : (a : S1) -> IsEquiv S1 S1 (rot a) = split

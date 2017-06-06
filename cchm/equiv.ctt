@@ -7,24 +7,24 @@ import prelude
 fiber (A B : U) (f : A -> B) (y : B) : U =
   (x : A) * Path B y (f x)
 
-isEquiv (A B : U) (f : A -> B) : U = (y : B) -> Contractible (fiber A B f y)
+IsEquiv (A B : U) (f : A -> B) : U = (y : B) -> Contractible (fiber A B f y)
 
-equiv (A B : U) : U = (f : A -> B) * isEquiv A B f
+equiv (A B : U) : U = (f : A -> B) * IsEquiv A B f
 
 propIsEquiv (A B : U) (f : A -> B)
-  : HProp (isEquiv A B f) =
-  \ (u0 u1:isEquiv A B f) ->
+  : HProp (IsEquiv A B f) =
+  \ (u0 u1:IsEquiv A B f) ->
      <i> \ (y:B) -> Contractible_level (fiber A B f y) (u0 y) (u1 y) @ i
 
 equivLemma (A B : U)
   : (v w : equiv A B) -> Path (A -> B) v.1 w.1 -> Path (equiv A B) v w
-  = lemSig (A -> B) (isEquiv A B) (propIsEquiv A B)
+  = lemSig (A -> B) (IsEquiv A B) (propIsEquiv A B)
 
-idIsEquiv (A : U) : isEquiv A A (idfun A) =
+idIsEquiv (A : U) : IsEquiv A A (idfun A) =
   \(a : A) -> ((a, refl A a)
               ,\(z : fiber A A (idfun A) a) -> contrSingl A a z.1 z.2)
 
-equivPath (T A : U) (f : T -> A) (p : isEquiv T A f) : Path U T A =
+equivPath (T A : U) (f : T -> A) (p : IsEquiv T A f) : Path U T A =
   <i> Glue A [ (i=0) -> (T,f,p), (i=1) -> (A,idfun A, idIsEquiv A)]
 
 -- for univalence
@@ -151,7 +151,7 @@ lemIso (A B : U) (f : A -> B) (g : B -> A)
 
 gradLemma (A B : U) (f : A -> B) (g : B -> A)
        (s : (y : B) -> Path B (f (g y)) y)
-       (t : (x : A) -> Path A (g (f x)) x) : isEquiv A B f =
+       (t : (x : A) -> Path A (g (f x)) x) : IsEquiv A B f =
   \(y:B) -> ((g y,<i>s y@-i),\ (z:fiber A B f y) ->
     lemIso A B f g s t y (g y) z.1 (<i>s y@-i) z.2)
 
@@ -161,7 +161,7 @@ isoPath (A B : U) (f : A -> B) (g : B -> A)
        <i> Glue B [ (i = 0) -> (A,f,gradLemma A B f g s t)
                   , (i = 1) -> (B,idfun B,idIsEquiv B) ]
 
-idIsEquivGrad (A : U) : isEquiv A A (idfun A) =
+idIsEquivGrad (A : U) : IsEquiv A A (idfun A) =
   gradLemma A A (idfun A) (idfun A) (\(a : A) -> <i> a) (\(a : A) -> <i> a)
 
 inv_path (A : U) (a b : A) : Path U (Path A a b) (Path A b a) =
@@ -172,3 +172,14 @@ inv_path (A : U) (a b : A) : Path U (Path A a b) (Path A b a) =
     (\ (p : Path A b a) -> <x> p @ -x)
     (\ (p : Path A b a) -> <_> p)
     (\ (p : Path A a b) -> <_> p)
+
+
+
+
+-- ----------------------------------------------------------------------
+-- equivalences
+
+ua (A B : U) (e : equiv A B) : Path U A B =
+  <i> Glue B [ (i = 0) -> (A, e)
+             , (i = 1) -> (B, idEquiv B) ]
+
