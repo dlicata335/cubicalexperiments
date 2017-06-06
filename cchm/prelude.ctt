@@ -292,14 +292,23 @@ whisker_square_bot
          (y=0) -> <z> top @ x,
          (y=1) -> <z> p @ z @ x]
 
-whisker_square_top (A : U) (t0 t1 : A) (b0 b1 : A)
-                   (top : Path A t0 t1)
-                   (bot : Path A b0 b1)
-                   (left : Path A t0 b0)
-                   (right : Path A t1 b1)
-                   (sq : PathP (<x> Path A (top @ x) (bot @ x)) left right)
-                   (top' : Path A t0 t1) (p : Path (Path A t0 t1) top top') : (PathP (<x> Path A (top' @ x) (bot @ x)) left right) = ?
-  -- <x> <y> comp A (sq @ x @ y) [(y = 0) -> <z> p @ z @ x]
+whisker_square_top
+  (A : U) (t0 t1 : A) (b0 b1 : A)
+  (top : Path A t0 t1)
+  (bot : Path A b0 b1)
+  (left : Path A t0 b0)
+  (right : Path A t1 b1)
+  (sq : PathP (<x> Path A (top @ x) (bot @ x)) left right)
+  (top' : Path A t0 t1) (p : Path (Path A t0 t1) top top')
+    : (PathP (<x> Path A (top' @ x) (bot @ x)) left right)
+  = <x> <y>
+      comp
+        (<_> A)
+        (sq @ x @ y)
+        [(x=0) -> <z> left @ y,
+         (x=1) -> <z> right @ y,
+         (y=0) -> <z> p @ z @ x,
+         (y=1) -> <z> bot @ x]
 
 eliminate_composite_top_right (A : U) (t0 t1 b0 b1 : A)
         (top : Path A t0 b1)
