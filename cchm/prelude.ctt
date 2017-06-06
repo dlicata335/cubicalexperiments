@@ -125,14 +125,6 @@ Singleton_level (A : U) (a : A) : Contractible ((b : A) * Path A a b)  =
 contrSingl (A : U) (a b : A) (p : Path A a b) :
   Path (Singleton A a) (a,refl A a) (b,p) = <i> (p @ i,<j> p @ i/\j)
 
-J (A : U) (a : A) (C : (x : A) -> Path A a x -> U)
-  (d : C a (refl A a)) (x : A) (p : Path A a x) : C x p = ?
-    -- trans (Singleton A a) T (a, refl A a) (x, p) (Singleton_level A a x p) d
-    --   where T (z : Singleton A a) : U = C (z.1) (z.2)
-
--- JEq (A : U) (a : A) (C : (x : A) -> Path A a x -> U) (d : C a (refl A a))
---   : Path (C a (refl A a)) d (J A a C d a (refl A a)) = ?
-
 inv (A : U) (a b : A) (p : Path A a b) : Path A b a = <i> p @ -i
 
 compPath (A : U) (a b c : A) (p : Path A a b) (q : Path A b c) : Path A a c =
@@ -154,6 +146,20 @@ ap (A : U) (B : A -> U)
 -- subst can be defined using trans:
 substTrans (A : U) (P : A -> U) (a b : A) (p : Path A a b) (e : P a) : P b =
   trans (P a) (P b) (ap A (\ (x : A) -> U) P a b p) e
+
+substEq (A : U) (P : A -> U) (a : A) (e : P a)
+  : Path (P a) e (substTrans A P a a (refl A a) e) =
+  fill (<i> P a) e []
+
+J (A : U) (a : A) (C : (x : A) -> Path A a x -> U)
+  (d : C a (refl A a)) (x : A) (p : Path A a x) : C x p =
+    substTrans (Singleton A a) T (a, refl A a) (x, p) (contrSingl A a x p) d
+      where T (z : Singleton A a) : U = C (z.1) (z.2)
+
+JEq (A : U) (a : A) (C : (x : A) -> Path A a x -> U) (d : C a (refl A a))
+  : Path (C a (refl A a)) d (J A a C d a (refl A a)) =
+  substEq (Singleton A a) T (a, refl A a) d
+    where T (z : Singleton A a) : U = C (z.1) (z.2)
 
 fill0 (A0 : U) (A1 : U) (A : Path U A0 A1) (a0 : A0) : PathP A a0 (transport A a0) = ?
    -- <x> transport (<y> A @ (x/\y)) a0
