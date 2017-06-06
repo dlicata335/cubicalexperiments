@@ -274,14 +274,23 @@ transport_inv (A0 : U) (A1 : U) (A : Path U A0 A1) (a1 : A1)
 --                                (f a0 a1 a) =
 --   funext3_step STUCK A0 STUCK A1 A (\ (a : A0) -> B) (\ (a : A1) -> B) (<x> \ (a : A @ x) -> B) f0 f1 f a0 a1 a
 
-whisker_square_bot (A : U) (a0 a1 : A) (b0 b1 : A)
-                 (top : Path A a0 a1)
-                 (bot : Path A b0 b1)
-                 (left : Path A a0 b0)
-                 (right : Path A a1 b1)
-                 (sq : PathP (<x> Path A (top @ x) (bot @ x)) left right)
-                 (bot' : Path A b0 b1) (p : Path (Path A b0 b1) bot bot') : (PathP (<x> Path A (top @ x) (bot' @ x)) left right) = ?
- -- <x> <y> comp (<_> A) (sq @ x @ y) [(y = 1) -> <z> p @ z @ x ]
+whisker_square_bot
+  (A : U) (a0 a1 : A) (b0 b1 : A)
+  (top : Path A a0 a1)
+  (bot : Path A b0 b1)
+  (left : Path A a0 b0)
+  (right : Path A a1 b1)
+  (sq : PathP (<x> Path A (top @ x) (bot @ x)) left right)
+  (bot' : Path A b0 b1) (p : Path (Path A b0 b1) bot bot')
+    : (PathP (<x> Path A (top @ x) (bot' @ x)) left right)
+  = <x> <y>
+      comp
+        (<_> A)
+        (sq @ x @ y)
+        [(x=0) -> <z> left @ y,
+         (x=1) -> <z> right @ y,
+         (y=0) -> <z> top @ x,
+         (y=1) -> <z> p @ z @ x]
 
 whisker_square_top (A : U) (t0 t1 : A) (b0 b1 : A)
                    (top : Path A t0 t1)
@@ -367,6 +376,8 @@ raise_Contractible_Prop (A : U) (Alevel : Contractible A) : HProp A =
   \(a : A) (b : A) ->
     <x> comp (<_> A) (Alevel.2 a @ -x) [(x = 0) -> <_> a, (x=1) -> <x> Alevel.2 b @ x]
 
+
+
 raise_Prop_Set (A : U) (h : HProp A) (a b : A) (p q : Path A a b) : Path (Path A a b) p q =
  <j i> comp (<_> A) a [ (i=0) -> h a a
                       , (i=1) -> h a b
@@ -383,6 +394,8 @@ Pi_level_prop (A : U) (B : A -> U) (h : (x : A) -> HProp (B x))
        (f0 f1 : (x : A) -> B x) : Path ((x : A) -> B x) f0 f1
   = <i> \ (x:A) -> (h x (f0 x) (f1 x)) @ i
 
+
+
 -- ----------------------------------------------------------------------
 -- basic types
 
@@ -394,9 +407,7 @@ NONSTUCK : Unit = tt
 
 Contractible_level (A : U) : HProp (Contractible A) =
   \ (a : Contractible A) (b : Contractible A) -> eq a.1 a.2 b.1 b.2 where
-  square (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) (a : A) :
-         Unit -> PathP (<x> Path A (eq1 c2 @ x) a)
-             (eq1 a) (eq2 a) = split tt -> ?
+  square (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) (a : A) : Unit -> PathP (<x> Path A (eq1 c2 @ x) a) (eq1 a) (eq2 a) = split tt -> ?
 --         <x><y> eq1 (eq1 c2 @ x) @ y
 
   eq (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) :
@@ -423,4 +434,3 @@ Times (A B : U) : U = (_ : A) * B
 --  \ (u v:and A B) -> <i>((pA u.1 v.1)@i, (pB u.1 u.2 v.2)@i)
 
 data Bool = true | false
-
