@@ -4,6 +4,7 @@ import susp
 import s1
 import join
 
+
 S2 : U = Susp S1
 
 hopf : S2 -> U = split
@@ -12,7 +13,18 @@ hopf : S2 -> U = split
   merid a @ x -> rotpath a @ x
 
 totalHopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
-  north -> \ (a : S1) -> joinl a
-  south -> \ (a : S1) -> joinr a
-  merid a @ x -> \(p : rotpath a @ x) -> ?
+  north -> \ (a : S1) -> joinl (comp (<_> S1) a [])
+  south -> \ (a : S1) -> joinr (comp (<_> S1) a [])
+  merid a @ x ->
+   \(p : rotpath a @ x) ->
+     join{Join S1 S1}
+       (comp (<y> rotpath a @ -y /\ x) p [])
+       (comp (<y> rotpath a @ y \/ x) p [])
+       @ x
+
+S3 : U = Susp S2
+ptS3 : PointedType = SuspP (S3, north)
+ptS2 : PointedType = SuspP (S2, north)
+ptS1 : PointedType = SuspP (S1, base)
+
 
