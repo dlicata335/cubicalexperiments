@@ -6,9 +6,40 @@ import join
 import pointedtypes
 
 
+---- Extra prereqs---------------------------------
+
 S2 : U = Susp S1
 
 data nat = zero | suc (n : nat)
+
+
+Omega (Z : PointedType) : PointedType = (Path Z.1 (Z.2) (Z.2), <_> Z.2)
+
+-- Iterated loop space
+itOmega : nat -> PointedType -> PointedType = split
+  zero  -> \ (A:PointedType) -> A
+  suc n -> \(A:PointedType) -> itOmega n (Omega A)
+
+fibOmega (B : PointedType) (P : B.1 -> U) (f : P (B.2)) (p : (Omega B).1) : U =
+ PathP (<i> P (p @ i)) f f
+
+itFibOmega : (n : nat) (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> (itOmega n B).1 -> U
+ = split
+  zero  -> \ (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> P
+  suc n -> \ (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> itFibOmega n (Omega B) (fibOmega B P f) (refl (P (B.2)) f)
+
+inhOrTrunc (A:U) : nat -> U = split
+  zero  -> A
+  suc n -> (x y : A) -> inhOrTrunc (Path A x y) n
+
+truncFibOmega (B : PointedType) (P : B.1 -> U) (f : P (pt B)) (n : nat) 
+  (tr:inhOrTrunc (P (pt B)) (suc n)) (p : (Omega B).1) : inhOrTrunc (fibOmega B P f p) n = ?
+--  = substInv U (\ (X:U) -> inhOrTrunc X n)
+--   (IdS B.1 P (pt B) (pt B) p f f) (Id (P (pt B)) (subst B.1 P (pt B) (pt B) p f) f)
+--   (funDepTr (P (pt B)) (P (pt B)) (<i>P (p@i)) f f) (tr (subst B.1 P (pt B) (pt B) p f) f)
+
+
+---------------------------------
 
 hopf : S2 -> U = split
   north -> S1
@@ -35,25 +66,18 @@ ptS2 : PointedType = (S2, north)
 ptS1 : PointedType = (S1, base)
 
 
-Omega (Z : PointedType) : PointedType = (Path Z.1 (Z.2) (Z.2), <_> Z.2)
-
--- Iterated loop space
-itOmega : nat -> PointedType -> PointedType = split
-  zero  -> \ (A:PointedType) -> A
-  suc n -> \(A:PointedType) -> itOmega n (Omega A)
-
-fibOmega (B : PointedType) (P : B.1 -> U) (f : P (B.2)) (p : (Omega B).1) : U =
- PathP (<i> P (p @ i)) f f
-
-itFibOmega : (n : nat) (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> (itOmega n B).1 -> U
- = split
-  zero  -> \ (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> P
-  suc n -> \ (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> itFibOmega n (Omega B) (fibOmega B P f) (refl (P (B.2)) f)
-
 hopfOne : (itOmega one ptS2).1 -> U = itFibOmega one ptS2 hopf base
 
 hopfTwo : (itOmega two ptS2).1 -> U = itFibOmega two ptS2 hopf base
 
 hopfThree : (itOmega three ptS2).1 -> U = itFibOmega three ptS2 hopf base
 
+ptJoin (pA:PointedType) (B:U) : PointedType = (Join pA.1 B, joinl (pt pA))
+
+
+-- fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p = 
+--   truncFibOmega (itOmega two ptS2) hopfTwo (refl (Id S1 base base) (refl S1 base)) zero
+--     (truncFibOmega (Omega ptS2) hopfOne (refl S1 base) one
+--           (truncFibOmega ptS2 hopf base two isGroupoidS1 (refl S2 north))
+--         (refl (Omega ptS2).1 (pt (Omega ptS2)))) p
 
