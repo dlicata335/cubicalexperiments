@@ -354,12 +354,11 @@ comp_inv_r (A : U) (a0 : A) (a1 : A) (p : Path A a0 a1) : Path (Path A a0 a0) (<
       (y = 1) -> <z> p @ -z /\ -x,
       (x = 1) -> <_> a0]
 
-comp_inv_r2 (A : U) (a0 : A) : (a1 : A) (p : Path A a0 a1)
-          -> Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> <y> p @ y, (y = 1) -> <y> p @ y ])
-                                 (<_> a1) =
-   J A a0 (\ (a1 : A) (p : Path A a0 a1) ->
-          Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> p, (y = 1) -> <y> p @ y ]) (<_> a1))
-          ?
+comp_inv_r2 (A : U) (a0 : A) : (a1 : A) (p : Path A a0 a1) -> Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> <y> p @ y, (y = 1) -> <y> p @ y ]) (<_> a1) =
+   J A a0
+     (\(a1 : A) (p : Path A a0 a1) -> Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> p, (y = 1) -> <y> p @ y ]) (<_> a1))
+     (<x> fill (<_> Path A a0 a0) (<_> a0) [] @ -x)
+
 
 -- ----------------------------------------------------------------------
 -- hlevels
