@@ -7,6 +7,8 @@ import join
 
 S2 : U = Susp S1
 
+data nat = zero | suc (n : nat)
+
 hopf : S2 -> U = split
   north -> S1
   south -> S1
@@ -22,9 +24,15 @@ totalHopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
        (comp (<y> rotpath a @ y \/ x) p [])
        @ x
 
+one : nat = suc zero
+two : nat = suc one
+three : nat = suc two
+
 S3 : U = Susp S2
 ptS3 : PointedType = SuspP (S3, north)
 ptS2 : PointedType = SuspP (S2, north)
 ptS1 : PointedType = SuspP (S1, base)
+
+
 
 
