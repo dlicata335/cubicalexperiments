@@ -161,9 +161,6 @@ JEq (A : U) (a : A) (C : (x : A) -> Path A a x -> U) (d : C a (refl A a))
   substEq (Singleton A a) T (a, refl A a) d
     where T (z : Singleton A a) : U = C (z.1) (z.2)
 
-fill0 (A0 : U) (A1 : U) (A : Path U A0 A1) (a0 : A0) : PathP A a0 (transport A a0) = ?
-   -- <x> transport (<y> A @ (x/\y)) a0
-
 hom_to_het_1_path (A0 : U) : (A1 : U) (A : Path U A0 A1)
                 (a0 : A0) (a1 : A1) ->
                 Path U (Path A1 (transport A a0) a1) (PathP A a0 a1) = ?
@@ -210,12 +207,12 @@ transport_inv (A0 : U) (A1 : U) (A : Path U A0 A1) (a1 : A1) : Path A1 (transpor
 -- funext_het_l (A0 A1 : U) (A : Path U A0 A1) :
 --              (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1)
 --              (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1)
---              (f : (a0 : A0) -> PathP (<x> (B @ x) ((fill0 A0 A1 A a0) @ x)) (f0 a0) (f1 (transport A a0))) ->
+--              (f : (a0 : A0) -> PathP (<x> (B @ x) ((fill A a0 []) @ x)) (f0 a0) (f1 (transport A a0))) ->
 --              PathP (<x> (a : A @ x) -> (B @ x) a) f0 f1 = ?
 --              J U A0 (\ (A1 : U) (A : Path U A0 A1) ->
 --                        (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1)
 --                        (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1)
---                        (f : (a0 : A0) -> PathP (<x> (B @ x) ((fill0 A0 A1 A a0) @ x)) (f0 a0) (f1 (transport A a0)))
+--                        (f : (a0 : A0) -> PathP (<x> (B @ x) ((fill A a0 []) @ x)) (f0 a0) (f1 (transport A a0)))
 --                        -> PathP (<x> (a : A @ x) -> (B @ x) a) f0 f1)
 --                     (\ (B0 : A0 -> U) (B1 : A0 -> U) (B : PathP (<_> A0 -> U) B0 B1)
 --                        (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A0) -> B1 a1)
@@ -229,7 +226,7 @@ transport_inv (A0 : U) (A1 : U) (A : Path U A0 A1) (a1 : A1) : Path A1 (transpor
 --         (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1)) : Unit ->
 --         PathP (<x> (a : A @ x) -> B @ x a) f0 f1 = split
 --    tt ->
---       funext_het_l A0 A1 A B0 B1 B f0 f1 (\ (a0 : A0) -> f a0 (transport A a0) (fill0 A0 A1 A a0))
+--       funext_het_l A0 A1 A B0 B1 B f0 f1 (\ (a0 : A0) -> f a0 (transport A a0) (fill A a0 []))
 
 -- funext3_step (S : Unit) (A0 : U) : Unit -> (A1 : U) (A : Path U A0 A1)
 --              (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1)
