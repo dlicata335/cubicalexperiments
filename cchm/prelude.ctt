@@ -308,9 +308,19 @@ constSquare (A : U) (a : A) (p : Path A a a) : Square A a a a a p p p p =
       (j = 0) -> <k> p @ (i \/ - k),
       (j = 1) -> <k> p @ (i /\ k)]
 
+
 comp_inv_r (A : U) (a0 : A) (a1 : A) (p : Path A a0 a1) :
            Path (Path A a0 a0) (<y> comp (<_> A) (p @ y) [ (y=0) -> <_> a0, (y = 1) -> <y> p @ -y])
-                               (<_> a0) = ?
+                               (<_> a0) = 
+  <x> <y> comp (<_> A) (p @ (-x/\y)) [ (y=1) -> <z> p@-(x\/z), (y = 0) -> <_> a0, (x = 1) -> <_> a0]	    
+
+  -- <i j> comp (<_> A) (p @ (-i /\ j)) 
+  --    	     [ (i = 0) -> <_> a0,
+  --    	       (i = 1) -> <k> p @ (j \/ k),
+  -- 	       (j = 0) -> <_> a0
+  -- 	     ]	       	     	      
+
+
   -- <x> <y> comp (<_> A) (p @ (-x/\y)) [(y=1) -> <z> p@-(x\/z)]
 
 comp_inv_r2 (A : U) (a0 : A) : (a1 : A) (p : Path A a0 a1)
