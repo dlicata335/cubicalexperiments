@@ -473,10 +473,3 @@ use_IsEquiv_level_het (A B : U) (f g : A -> B) (p : Path (A -> B) f g)
    J (A -> B) f (\ (g : A -> B) (p : Path (A -> B) f g) -> (e1 : IsEquiv A B f) (e2 : IsEquiv A B g) -> PathP (<x> IsEquiv A B (p @ x)) e1 e2)
                 (\ (e1 : IsEquiv A B f) (e2 : IsEquiv A B f) -> IsEquiv_level A B f e1 e2)
                 g p e1 e2
-
-inv_path (A : U) (a b : A) : Path U (Path A a b) (Path A b a) = ?
-   -- ua (Path A a b) (Path A b a)
-   --    (\ (p : Path A a b) -> <x> p @ -x)
-   --    (\ (p : Path A b a) -> <x> p @ -x)
-   --    (\ (p : Path A b a) -> <_> p)
-   --    (\ (p : Path A a b) -> <_> p)

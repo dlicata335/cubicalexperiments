@@ -163,3 +163,12 @@ isoPath (A B : U) (f : A -> B) (g : B -> A)
 
 idIsEquivGrad (A : U) : isEquiv A A (idfun A) =
   gradLemma A A (idfun A) (idfun A) (\(a : A) -> <i> a) (\(a : A) -> <i> a)
+
+inv_path (A : U) (a b : A) : Path U (Path A a b) (Path A b a) =
+  isoPath
+    (Path A a b)
+    (Path A b a)
+    (\ (p : Path A a b) -> <x> p @ -x)
+    (\ (p : Path A b a) -> <x> p @ -x)
+    (\ (p : Path A b a) -> <_> p)
+    (\ (p : Path A a b) -> <_> p)

@@ -1,6 +1,7 @@
 module s1 where
-  
+
 import prelude
+import equiv
 import pointedtypes
 
 data S1 = base
