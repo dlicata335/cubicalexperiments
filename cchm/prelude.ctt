@@ -192,11 +192,18 @@ move_transport_right_path (A0 : U) (A1 : U) (A : Path U A0 A1)
    --       (hom_to_het_1_path A0 A1 A a0 a1)
    --       (<x> hom_to_het_0_path A0 A1 A a0 a1 @ -x)
 
-transport_inv (A0 : U) (A1 : U) (A : Path U A0 A1) (a1 : A1)
-                 : Path A1 (transport A (transport (<x> A @ -x) a1)) a1 = ?
-    -- J U A0 (\ (A1 : U) (A : Path U A0 A1) -> (a1 : A1) -> Path A1 (transport A (transport (<x> A @ -x) a1)) a1)
-    --        (\ (a1 : A0) -> <_> a1)
-    --        A1 A a1
+transport_inv (A0 : U) (A1 : U) (A : Path U A0 A1) (a1 : A1) : Path A1 (transport A (transport (<x> A @ -x) a1)) a1 =
+  J U A0
+    (\ (A1 : U) (A : Path U A0 A1) -> (a1 : A1) -> Path A1 (transport A (transport (<x> A @ -x) a1)) a1)
+    (\ (a0 : A0) ->
+       compPath A0
+         (comp (<_> A0) (comp (<_> A0) a0 []) [])
+         (comp (<_> A0) a0 []) a0
+         (<x> fill (<_> A0) (comp (<_> A0) a0 []) [] @ -x)
+         (<x> fill (<_> A0) a0 [] @ -x))
+    A1 A a1
+
+
 
 -- FIXME there should be a more direct proof
 -- but normal form seems not that bad
