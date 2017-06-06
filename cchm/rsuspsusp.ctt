@@ -12,17 +12,17 @@ Susp_to_RSusp (A : PointedType) : Susp A.1 -> RSusp A = split
 RSusp_to_Susp (A : PointedType) : RSusp A -> Susp A.1 = split
   north -> north
   merid a @ x -> comp (<_> Susp A.1) (merid{Susp A.1} a @ x) [(x=0) -> <_> north , (x=1) -> <x> merid{Susp A.1} A.2 @ -x]
-  meridpt @ x y -> ? -- comp_inv_r (Susp A.1) north south (<x> merid{Susp A.1} A.2 @ x) @ x @ y
+  meridpt @ x y -> comp_inv_r (Susp A.1) north south (<x> merid{Susp A.1} A.2 @ x) @ x @ y
 
--- Susp_RSusp_c1 (A : PointedType) : (a : Susp A.1) -> Path (Susp A.1) (RSusp_to_Susp A (Susp_to_RSusp A a)) a = split
---   north -> <_> north
---   south -> <x> merid{Susp A.1} A.2 @ x
---   merid a @ x -> <y> eliminate_composite_top_right (Susp A.1) north north north south
---                                                (<x> merid {Susp (A.1)} a @ x)
---                                                (<x> merid {Susp (A.1)} a @ x)
---                                                (<_> north)
---                                                (<x> merid {Susp (A.1)} A.2 @ x)
---                                                (<x><y> merid {Susp (A.1)} a @ x)  @ x @ y
+Susp_RSusp_c1 (A : PointedType) : (a : Susp A.1) -> Path (Susp A.1) (RSusp_to_Susp A (Susp_to_RSusp A a)) a = split
+  north -> <_> north
+  south -> <x> merid{Susp A.1} A.2 @ x
+  merid a @ x -> <y> eliminate_composite_top_right (Susp A.1) north north north south
+                                               (<x> merid {Susp (A.1)} a @ x)
+                                               (<x> merid {Susp (A.1)} a @ x)
+                                               (<_> north)
+                                               (<x> merid {Susp (A.1)} A.2 @ x)
+                                               (<x><y> merid {Susp (A.1)} a @ x)  @ x @ y
 
 -- Susp_RSusp_c2 (A : PointedType) : (a : RSusp A) -> Path (RSusp A) (Susp_to_RSusp A (RSusp_to_Susp A a)) a = split
 --    north -> <_> north 

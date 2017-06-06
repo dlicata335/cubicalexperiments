@@ -54,15 +54,15 @@ data Unit = tt
 STUCK : Unit = ?
 NONSTUCK : Unit = tt
 
-Contractible_level (A : U) : HProp (Contractible A) = 
+Contractible_level (A : U) : HProp (Contractible A) =
   \ (a : Contractible A) (b : Contractible A) -> eq a.1 a.2 b.1 b.2 where
   square (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) (a : A) :
          Unit -> PathP (<x> Path A (eq1 c2 @ x) a)
              (eq1 a) (eq2 a) = split tt -> ?
 --         <x><y> eq1 (eq1 c2 @ x) @ y
-         
+
   eq (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) :
-        Path (Contractible A) (c1 , eq1) (c2, eq2) = 
+        Path (Contractible A) (c1 , eq1) (c2, eq2) =
         <x> (eq1 c2 @ x , \ (a : A) -> <y> square c1 eq1 c2 eq2 a STUCK @ x @ y)
 
 
@@ -81,7 +81,7 @@ data Either (A B : U) = inl (a : A)
 
 Times (A B : U) : U = (_ : A) * B
 
--- Times_level (A B :U) (pA: prop A) (pB: A -> prop B) : prop (and A B) = 
+-- Times_level (A B :U) (pA: prop A) (pB: A -> prop B) : prop (and A B) =
 --  \ (u v:and A B) -> <i>((pA u.1 v.1)@i, (pB u.1 u.2 v.2)@i)
 
 data Bool = true | false
@@ -112,15 +112,15 @@ transNegK (A B : U) (p : Path U A B) (a : A) :
     <i> comp (<j> p @ -j) (trans A B p a) [(i=0) -> rem1
                                          ,(i=1) -> rem2 (trans A B p a) ]
     where
-    rem1 : PathP (<i> p@-i) (trans A B p a) a = 
+    rem1 : PathP (<i> p@-i) (trans A B p a) a =
        <i> comp (<j> p @ (-i /\ j)) a [(i=1) -> <j>a]
-    rem2 (b:B) : PathP (<i> p@-i) b (transNeg A B p b) = 
+    rem2 (b:B) : PathP (<i> p@-i) b (transNeg A B p b) =
       <i> comp (<j> p @ (-i \/ -j)) b [(i=0) -> <j> b]
 
 Singleton (A : U) (a : A) : U = (x : A) * Path A a x
 
-Singleton_level (A : U) (a : A) : Contractible ((b : A) * Path A a b)  = 
-  ( (a , <_> a) , \ (bp : ((b : A) * Path A a b)) -> <x> (bp.2 @ x , <y> bp.2 @ (x/\y)) ) 
+Singleton_level (A : U) (a : A) : Contractible ((b : A) * Path A a b)  =
+  ( (a , <_> a) , \ (bp : ((b : A) * Path A a b)) -> <x> (bp.2 @ x , <y> bp.2 @ (x/\y)) )
 
 contrSingl (A : U) (a b : A) (p : Path A a b) :
   Path (Singleton A a) (a,refl A a) (b,p) = <i> (p @ i,<j> p @ i/\j)
@@ -130,17 +130,17 @@ inv (A : U) (a b : A) (p : Path A a b) : Path A b a = <i> p @ -i
 compPath (A : U) (a b c : A) (p : Path A a b) (q : Path A b c) : Path A a c =
   <i> comp (<j>A) (p @ i) [ (i = 1) -> q, (i=0) -> <j> a ]
 
-compU (A B C : U) (p : Path U A B) (q : Path U B C) : Path U A C = 
+compU (A B C : U) (p : Path U A B) (q : Path U B C) : Path U A C =
   <x> comp (<_> U) (p @ x) [(x=0) -> <_> A, (x=1) -> q]
 
-ap (A : U) (B : A -> U) 
+ap (A : U) (B : A -> U)
    (f : (x : A) -> B x)
    (a0 : A) (a1 : A) (a : Path A a0 a1) :
    PathP (<x> B (a @ x)) (f a0) (f a1) =
    <x> f (a @ x)
 
 -- coe a : b -> c = (b/\c) \/ (b/\-a) \/ (c/\a)
--- coe z : x -> 0 = (x/\-z) 
+-- coe z : x -> 0 = (x/\-z)
 -- coe z : 1 -> y = y \/ -z \/ (z/\y)
 
 -- subst can be defined using trans:
@@ -167,19 +167,19 @@ fill0 (A0 : U) (A1 : U) (A : Path U A0 A1) (a0 : A0) : PathP A a0 (transport A a
 hom_to_het_1_path (A0 : U) : (A1 : U) (A : Path U A0 A1)
                 (a0 : A0) (a1 : A1) ->
                 Path U (Path A1 (transport A a0) a1) (PathP A a0 a1) = ?
-    -- J U A0 (\ (A1 : U) (A : Path U A0 A1) -> 
+    -- J U A0 (\ (A1 : U) (A : Path U A0 A1) ->
     --           (a0 : A0) (a1 : A1) -> Path U (Path A1 (transport A a0) a1) (PathP A a0 a1))
     --        (\ (a0 : A0) (a1 : A0) -> <_> (Path A0 a0 a1) )
 
 hom_to_het_1 (A0 : U) (A1 : U) (A : Path U A0 A1)
-                (a0 : A0) (a1 : A1)  
+                (a0 : A0) (a1 : A1)
                 (p : Path A1 (transport A a0) a1) : PathP A a0 a1 = ?
   -- transport (hom_to_het_1_path A0 A1 A a0 a1) p
 
 hom_to_het_0_path (A0 : U) : (A1 : U) (A : Path U A0 A1)
                 (a0 : A0) (a1 : A1) ->
                 Path U (Path A0 a0 (transport (<x> A @ -x) a1)) (PathP A a0 a1) = ?
-    -- J U A0 (\ (A1 : U) (A : Path U A0 A1) -> 
+    -- J U A0 (\ (A1 : U) (A : Path U A0 A1) ->
     --           (a0 : A0) (a1 : A1) -> Path U (Path A0 a0 (transport (<x> A @ -x) a1)) (PathP A a0 a1))
     --        (\ (a0 : A0) (a1 : A0) -> <_> (Path A0 a0 a1) )
 
@@ -192,7 +192,7 @@ move_transport_right_path (A0 : U) (A1 : U) (A : Path U A0 A1)
    --       (hom_to_het_1_path A0 A1 A a0 a1)
    --       (<x> hom_to_het_0_path A0 A1 A a0 a1 @ -x)
 
-transport_inv (A0 : U) (A1 : U) (A : Path U A0 A1) (a1 : A1) 
+transport_inv (A0 : U) (A1 : U) (A : Path U A0 A1) (a1 : A1)
                  : Path A1 (transport A (transport (<x> A @ -x) a1)) a1 = ?
     -- J U A0 (\ (A1 : U) (A : Path U A0 A1) -> (a1 : A1) -> Path A1 (transport A (transport (<x> A @ -x) a1)) a1)
     --        (\ (a1 : A0) -> <_> a1)
@@ -201,85 +201,85 @@ transport_inv (A0 : U) (A1 : U) (A : Path U A0 A1) (a1 : A1)
 -- FIXME there should be a more direct proof
 -- but normal form seems not that bad
 -- funext_het_l (A0 A1 : U) (A : Path U A0 A1) :
---              (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1) 
---              (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1) 
+--              (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1)
+--              (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1)
 --              (f : (a0 : A0) -> PathP (<x> (B @ x) ((fill0 A0 A1 A a0) @ x)) (f0 a0) (f1 (transport A a0))) ->
 --              PathP (<x> (a : A @ x) -> (B @ x) a) f0 f1 = ?
 --              J U A0 (\ (A1 : U) (A : Path U A0 A1) ->
---                        (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1) 
---                        (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1) 
---                        (f : (a0 : A0) -> PathP (<x> (B @ x) ((fill0 A0 A1 A a0) @ x)) (f0 a0) (f1 (transport A a0))) 
+--                        (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1)
+--                        (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1)
+--                        (f : (a0 : A0) -> PathP (<x> (B @ x) ((fill0 A0 A1 A a0) @ x)) (f0 a0) (f1 (transport A a0)))
 --                        -> PathP (<x> (a : A @ x) -> (B @ x) a) f0 f1)
---                     (\ (B0 : A0 -> U) (B1 : A0 -> U) (B : PathP (<_> A0 -> U) B0 B1) 
---                        (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A0) -> B1 a1) 
---                        (f : (a0 : A0) -> PathP (<x> (B @ x) a0) (f0 a0) (f1 a0)) 
---                        -> <x> \ (a : A0) -> f a @ x) 
+--                     (\ (B0 : A0 -> U) (B1 : A0 -> U) (B : PathP (<_> A0 -> U) B0 B1)
+--                        (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A0) -> B1 a1)
+--                        (f : (a0 : A0) -> PathP (<x> (B @ x) a0) (f0 a0) (f1 a0))
+--                        -> <x> \ (a : A0) -> f a @ x)
 --                     A1 A
 
--- funext3 (A0 A1 : U) (A : Path U A0 A1) 
---         (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1) 
---         (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1) 
---         (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1)) : Unit -> 
---         PathP (<x> (a : A @ x) -> B @ x a) f0 f1 = split 
---    tt -> 
+-- funext3 (A0 A1 : U) (A : Path U A0 A1)
+--         (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1)
+--         (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1)
+--         (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1)) : Unit ->
+--         PathP (<x> (a : A @ x) -> B @ x a) f0 f1 = split
+--    tt ->
 --       funext_het_l A0 A1 A B0 B1 B f0 f1 (\ (a0 : A0) -> f a0 (transport A a0) (fill0 A0 A1 A a0))
 
--- funext3_step (S : Unit) (A0 : U) : Unit -> (A1 : U) (A : Path U A0 A1) 
---              (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1) 
---              (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1) 
---              (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1)) 
+-- funext3_step (S : Unit) (A0 : U) : Unit -> (A1 : U) (A : Path U A0 A1)
+--              (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1)
+--              (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1)
+--              (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1))
 --              (a0 : A0) (a1 : A1) (a : PathP A a0 a1) ->
 --                Path (PathP (<x> B @ x (a @ x)) (f0 a0) (f1 a1))
 --                   (<x> (funext3 A0 A1 A B0 B1 B f0 f1 f S) @ x (a @ x))
---                   (f a0 a1 a) = split 
---    tt -> 
+--                   (f a0 a1 a) = split
+--    tt ->
 --             J U A0 (\ (A1 : U) (A : Path U A0 A1) ->
---                    (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1) 
---                    (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1) 
---                    (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1)) 
+--                    (B0 : A0 -> U) (B1 : A1 -> U) (B : PathP (<x> A @ x -> U) B0 B1)
+--                    (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A1) -> B1 a1)
+--                    (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1))
 --                    (a0 : A0) (a1 : A1) (a : PathP A a0 a1) ->
 --                      Path (PathP (<x> B @ x (a @ x)) (f0 a0) (f1 a1))
 --                         (<x> (funext3 A0 A1 A B0 B1 B f0 f1 f S) @ x (a @ x))
 --                         (f a0 a1 a))
---                 (\ (B0 : A0 -> U) (B1 : A0 -> U) (B : Path (A0 -> U) B0 B1) 
---                    (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A0) -> B1 a1) 
---                    (f : (a0 : A0) (a1 : A0) (a : Path A0 a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1)) 
---                    (a0 : A0) -> 
---                    J A0 a0 (\ (a1 : A0) (a : Path A0 a0 a1) -> 
+--                 (\ (B0 : A0 -> U) (B1 : A0 -> U) (B : Path (A0 -> U) B0 B1)
+--                    (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A0) -> B1 a1)
+--                    (f : (a0 : A0) (a1 : A0) (a : Path A0 a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1))
+--                    (a0 : A0) ->
+--                    J A0 a0 (\ (a1 : A0) (a : Path A0 a0 a1) ->
 --                            Path (PathP (<x> B @ x (a @ x)) (f0 a0) (f1 a1))
 --                               (<x> (funext3 A0 A0 (<_> A0) B0 B1 B f0 f1 f S) @ x (a @ x))
 --                               (f a0 a1 a))
---                         (unstuck B0 B1 B f0 f1 f a0 S)) where 
---       unstuck (B0 : A0 -> U) (B1 : A0 -> U) (B : Path (A0 -> U) B0 B1) 
---              (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A0) -> B1 a1) 
---              (f : (a0 : A0) (a1 : A0) (a : Path A0 a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1)) 
+--                         (unstuck B0 B1 B f0 f1 f a0 S)) where
+--       unstuck (B0 : A0 -> U) (B1 : A0 -> U) (B : Path (A0 -> U) B0 B1)
+--              (f0 : (a0 : A0) -> B0 a0) (f1 : (a1 : A0) -> B1 a1)
+--              (f : (a0 : A0) (a1 : A0) (a : Path A0 a0 a1) -> PathP (<x> (B @ x) (a @ x)) (f0 a0) (f1 a1))
 --              (a0 : A0) : (S : Unit)
 --               -> Path (PathP (<x> B @ x a0) (f0 a0) (f1 a0)) (<x> (funext3 A0 A0 (<_> A0) B0 B1 B f0 f1 f S) @ x a0) (f a0 a0 (<_> a0)) = split
---         tt -> (<_> (f a0 a0 (<_> a0))) 
+--         tt -> (<_> (f a0 a0 (<_> a0)))
 
--- funext3_constant_range (A0 A1 : U) (A : Path U A0 A1) 
+-- funext3_constant_range (A0 A1 : U) (A : Path U A0 A1)
 --                        (B : U)
---                        (f0 : A0 -> B) (f1 : A1 -> B) 
+--                        (f0 : A0 -> B) (f1 : A1 -> B)
 --                        (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> Path B (f0 a0) (f1 a1)) :
---                        PathP (<x> (a : A @ x) -> B) f0 f1 = 
+--                        PathP (<x> (a : A @ x) -> B) f0 f1 =
 --    funext3 A0 A1 A (\ (a : A0) -> B) (\ (a : A1) -> B) (<x> \ (a : A @ x) -> B) f0 f1 f STUCK
 
--- funext3_constant_range_step (A0 A1 : U) (A : Path U A0 A1) 
+-- funext3_constant_range_step (A0 A1 : U) (A : Path U A0 A1)
 --                             (B : U)
---                             (f0 : A0 -> B) (f1 : A1 -> B) 
---                             (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> Path B (f0 a0) (f1 a1)) 
---                             (a0 : A0) (a1 : A1) (a : PathP A a0 a1) : 
---                             Path (Path B (f0 a0) (f1 a1)) 
+--                             (f0 : A0 -> B) (f1 : A1 -> B)
+--                             (f : (a0 : A0) (a1 : A1) (a : PathP A a0 a1) -> Path B (f0 a0) (f1 a1))
+--                             (a0 : A0) (a1 : A1) (a : PathP A a0 a1) :
+--                             Path (Path B (f0 a0) (f1 a1))
 --                                (<x> (funext3_constant_range A0 A1 A B f0 f1 f) @ x (a @ x))
---                                (f a0 a1 a) = 
---   funext3_step STUCK A0 STUCK A1 A (\ (a : A0) -> B) (\ (a : A1) -> B) (<x> \ (a : A @ x) -> B) f0 f1 f a0 a1 a 
+--                                (f a0 a1 a) =
+--   funext3_step STUCK A0 STUCK A1 A (\ (a : A0) -> B) (\ (a : A1) -> B) (<x> \ (a : A @ x) -> B) f0 f1 f a0 a1 a
 
 whisker_square_bot (A : U) (a0 a1 : A) (b0 b1 : A)
                  (top : Path A a0 a1)
                  (bot : Path A b0 b1)
                  (left : Path A a0 b0)
-                 (right : Path A a1 b1) 
-                 (sq : PathP (<x> Path A (top @ x) (bot @ x)) left right) 
+                 (right : Path A a1 b1)
+                 (sq : PathP (<x> Path A (top @ x) (bot @ x)) left right)
                  (bot' : Path A b0 b1) (p : Path (Path A b0 b1) bot bot') : (PathP (<x> Path A (top @ x) (bot' @ x)) left right) = ?
  -- <x> <y> comp (<_> A) (sq @ x @ y) [(y = 1) -> <z> p @ z @ x ]
 
@@ -287,197 +287,196 @@ whisker_square_top (A : U) (t0 t1 : A) (b0 b1 : A)
                    (top : Path A t0 t1)
                    (bot : Path A b0 b1)
                    (left : Path A t0 b0)
-                   (right : Path A t1 b1) 
-                   (sq : PathP (<x> Path A (top @ x) (bot @ x)) left right) 
+                   (right : Path A t1 b1)
+                   (sq : PathP (<x> Path A (top @ x) (bot @ x)) left right)
                    (top' : Path A t0 t1) (p : Path (Path A t0 t1) top top') : (PathP (<x> Path A (top' @ x) (bot @ x)) left right) = ?
   -- <x> <y> comp A (sq @ x @ y) [(y = 0) -> <z> p @ z @ x]
 
-eliminate_composite_top_right (A : U) (t0 t1 b0 b1 : A) 
-        (top : Path A t0 b1) 
+eliminate_composite_top_right (A : U) (t0 t1 b0 b1 : A)
+        (top : Path A t0 b1)
         (bot : Path A b0 b1)
         (left : Path A t0 b0)
-        (right : Path A t1 b1) 
-        (sq : PathP (<x> Path A (top @ x) (bot @ x)) left (< _ > b1)) : 
-        PathP (<x> Path A ((compPath A t0 b1 t1 top (<z> right @ -z)) @ x) (bot @ x)) left right = 
-	      J A t1 ( \ (b1 : A) (right : Path A t1 b1) -> 
-                 (top : Path A t0 b1) 
+        (right : Path A t1 b1)
+        (sq : PathP (<x> Path A (top @ x) (bot @ x)) left (< _ > b1)) :
+        PathP (<x> Path A ((compPath A t0 b1 t1 top (<z> right @ -z)) @ x) (bot @ x)) left right =
+              J A t1 ( \ (b1 : A) (right : Path A t1 b1) ->
+                 (top : Path A t0 b1)
                  (bot : Path A b0 b1)
                  (left : Path A t0 b0)
-                 (sq : PathP (<x> Path A (top @ x) (bot @ x)) left (< _ > b1)) 
-                 -> PathP (<x> Path A ((compPath A t0 b1 t1 top (<z> right @ -z)) @ x) (bot @ x)) left right 
-                 ) 
-              ( \ (top : Path A t0 t1) 
+                 (sq : PathP (<x> Path A (top @ x) (bot @ x)) left (< _ > b1))
+                 -> PathP (<x> Path A ((compPath A t0 b1 t1 top (<z> right @ -z)) @ x) (bot @ x)) left right
+                 )
+              ( \ (top : Path A t0 t1)
                  (bot : Path A b0 t1)
                  (left : Path A t0 b0)
-                 (sq : PathP (<x> Path A (top @ x) (bot @ x)) left (<_> t1)) 
-                 -> <x y> comp (<_> A) (sq @ x @ y) 
-		    [(x = 0) -> <_> left @ y, 
-		     (x = 1) -> <_> t1, 
-		     (y = 1) -> <_> bot @ x, 
-		     (y = 0) -> fill (<_> A) (top @ x) [(x = 0) -> <_> top @ 0, (x = 1) -> <_> top @ 1]
-		    ] 
+                 (sq : PathP (<x> Path A (top @ x) (bot @ x)) left (<_> t1))
+                 -> <x y> comp (<_> A) (sq @ x @ y)
+                    [(x = 0) -> <_> left @ y,
+                     (x = 1) -> <_> t1,
+                     (y = 1) -> <_> bot @ x,
+                     (y = 0) -> fill (<_> A) (top @ x) [(x = 0) -> <_> top @ 0, (x = 1) -> <_> top @ 1]
+                    ]
                  ) b1 right top bot left sq
 
--- constSquare (A : U) (a : A) (p : Path A a a) : 
---             PathP (<x> Path A (p @ x) (p @ x))
---                 p
---                 p =
---   <i j> comp (<_> A) a
---      [(i = 0) -> <k> p @ (j \/ - k),
---       (i = 1) -> <k> p @ (j /\ k),
---       (j = 0) -> <k> p @ (i \/ - k),
---       (j = 1) -> <k> p @ (i /\ k)]
+constSquare (A : U) (a : A) (p : Path A a a) :
+            PathP (<x> Path A (p @ x) (p @ x))
+                p
+                p =
+  <i j> comp (<_> A) a
+     [(i = 0) -> <k> p @ (j \/ - k),
+      (i = 1) -> <k> p @ (j /\ k),
+      (j = 0) -> <k> p @ (i \/ - k),
+      (j = 1) -> <k> p @ (i /\ k)]
 
--- --         u
--- --    a0 -----> a1
--- --    |         |
--- -- r0 |         | r1
--- --    |         |
--- --    V         V
--- --    b0 -----> b1
--- --         v
--- Square (A : U) (a0 a1 b0 b1 : A)
---                (u : Path A a0 a1) (v : Path A b0 b1)
---                (r0 : Path A a0 b0) (r1 : Path A a1 b1) : U
---   = PathP (<i> (PathP (<j> A) (u @ i) (v @ i))) r0 r1
+--         u
+--    a0 -----> a1
+--    |         |
+-- r0 |         | r1
+--    |         |
+--    V         V
+--    b0 -----> b1
+--         v
+Square (A : U) (a0 a1 b0 b1 : A)
+               (u : Path A a0 a1) (v : Path A b0 b1)
+               (r0 : Path A a0 b0) (r1 : Path A a1 b1) : U
+  = PathP (<i> (PathP (<j> A) (u @ i) (v @ i))) r0 r1
 
--- constSquare (A : U) (a : A) (p : Path A a a) : Square A a a a a p p p p =
---   <i j> comp (<k>A) a
---      [(i = 0) -> <k> p @ (j \/ - k),
---       (i = 1) -> <k> p @ (j /\ k),
---       (j = 0) -> <k> p @ (i \/ - k),
---       (j = 1) -> <k> p @ (i /\ k)]
+constSquare (A : U) (a : A) (p : Path A a a) : Square A a a a a p p p p =
+  <i j> comp (<k>A) a
+     [(i = 0) -> <k> p @ (j \/ - k),
+      (i = 1) -> <k> p @ (j /\ k),
+      (j = 0) -> <k> p @ (i \/ - k),
+      (j = 1) -> <k> p @ (i /\ k)]
 
--- comp_inv_r (A : U) (a0 : A) (a1 : A) (p : Path A a0 a1) : Path (Path A a0 a0) (<y> comp (<_> A) (p @ y) [ (y=0) -> <_> a0, (y = 1) -> <y> p @ -y]) (<_> a0) =
---   <x y> comp (<_> A) (p @ y /\ -x)
---      [(y = 0) -> <_> a0,
---       (y = 1) -> <z> p @ -z /\ -x,
---       (x = 1) -> <_> a0]
+comp_inv_r (A : U) (a0 : A) (a1 : A) (p : Path A a0 a1) : Path (Path A a0 a0) (<y> comp (<_> A) (p @ y) [ (y=0) -> <_> a0, (y = 1) -> <y> p @ -y]) (<_> a0) =
+  <x y> comp (<_> A) (p @ y /\ -x)
+     [(y = 0) -> <_> a0,
+      (y = 1) -> <z> p @ -z /\ -x,
+      (x = 1) -> <_> a0]
 
--- comp_inv_r2 (A : U) (a0 : A) : (a1 : A) (p : Path A a0 a1)
---           -> Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> <y> p @ y, (y = 1) -> <y> p @ y ])
---                                  (<_> a1) = 
---    J A a0 (\ (a1 : A) (p : Path A a0 a1) ->
---           Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> p, (y = 1) -> <y> p @ y ]) (<_> a1))
---           ?
-
--- -- ----------------------------------------------------------------------
--- -- hlevels
-
--- raise_Contractible_Prop (A : U) (Alevel : Contractible A) : HProp A = ?
---   -- \ (a : A) (b : A) -> <x> comp (<_> A) (Alevel.2 a @ -x) [(x=1) -> <x> Alevel.2 b @ x]
-
--- raise_Prop_Set (A : U) (h : HProp A) (a b : A) (p q : Path A a b) : Path (Path A a b) p q =
---  <j i> comp (<_> A) a [ (i=0) -> h a a
---                       , (i=1) -> h a b
---                       , (j=0) -> h a (p @ i)
---                       , (j=1) -> h a (q @ i)]
-
--- HProp_level (A : U) (f g : HProp A) : Path (HProp A) f g =
---  <i> \(a b :A) -> (raise_Prop_Set A f a b (f a b) (g a b)) @ i
-
--- HSet_level (A : U) (f g : HSet A) : Path (HSet A) f g =
---  <i> \(a b :A) -> (HProp_level (Path A a b) (f a b) (g a b)) @ i
-
--- Pi_level_prop (A : U) (B : A -> U) (h : (x : A) -> HProp (B x))
---        (f0 f1 : (x : A) -> B x) : Path ((x : A) -> B x) f0 f1
---   = <i> \ (x:A) -> (h x (f0 x) (f1 x)) @ i
-
--- -- ----------------------------------------------------------------------
--- -- basic types
-
--- data Unit = tt
-
--- -- for controling reduction
--- STUCK : Unit = ?
--- NONSTUCK : Unit = tt
-
--- Contractible_level (A : U) : HProp (Contractible A) = 
---   \ (a : Contractible A) (b : Contractible A) -> eq a.1 a.2 b.1 b.2 where
---   square (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) (a : A) :
---          Unit -> PathP (<x> Path A (eq1 c2 @ x) a)
---              (eq1 a) (eq2 a) = split tt -> ?
--- --         <x><y> eq1 (eq1 c2 @ x) @ y
-         
---   eq (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) :
---         Path (Contractible A) (c1 , eq1) (c2, eq2) = 
---         <x> (eq1 c2 @ x , \ (a : A) -> <y> square c1 eq1 c2 eq2 a STUCK @ x @ y)
-
-
--- data Void =
-
--- abort (A : U) : Void -> A = split{}
-
--- Unit_level : HProp Unit = rem
---   where rem1 : (x:Unit) -> Path Unit x tt = split tt -> refl Unit tt
---         rem (x:Unit) : (y:Unit) -> Path Unit x y = split tt -> rem1 x
-
--- Void_level : HProp Void = \ (x y:Void) -> abort (Path Void x y) x
-
--- data Either (A B : U) = inl (a : A)
---                       | inr (b : B)
-
--- Times (A B : U) : U = (_ : A) * B
-
--- -- Times_level (A B :U) (pA: prop A) (pB: A -> prop B) : prop (and A B) = 
--- --  \ (u v:and A B) -> <i>((pA u.1 v.1)@i, (pB u.1 u.2 v.2)@i)
-
--- data Bool = true | false
-
--- -- ----------------------------------------------------------------------
--- -- equivalences 
-
--- Fiber (A B:U) (f:A->B) (b:B) : U = (x:A) * Path B b (f x)
-
--- Fiber_idfun_level (A:U) (a:A) : HProp (Fiber A A (\ (x:A) -> x) a) = ?
--- -- rem
--- --  where F : U = Fiber A A (\ (x:A) -> x) a
--- --        rem (u v:F) : Path F u v = <i>(rem1 @ i,rem2 @ i)
--- --          where x : A = u.1
--- --                p : Path A a x = u.2
--- --                y : A = v.1
--- --                q : Path A a y = v.2
--- --                rem1 : Path A x y = <i>comp A a [(i=0) -> p,(i=1) -> q]
--- --                rem2 : PathP (<i>Path A a (rem1@i)) p q = <i j>comp A a [(i=0) -> <l>p@(j/\l),(i=1) -> <l>q@(j/\l)]
-
--- IsEquiv (A B:U) (f:A->B) : U = (y:B) -> Contractible (Fiber A B f y)
-
--- idfun_IsEquiv (A:U) : IsEquiv A A (idfun A) = \ (a:A) -> ((a,refl A a), Fiber_idfun_level A a (a,refl A a))
-
--- Equiv (A B : U) : U = (f : A -> B) * IsEquiv A B f
-
--- IsEquiv_level (A B : U) (f : A -> B) : HProp (IsEquiv A B f)
---   = Pi_level_prop B (\ (y:B) -> Contractible (Fiber A B f y)) (\ (y:B) -> Contractible_level (Fiber A B f y))
-
--- use_IsEquiv_level_het (A B : U) (f g : A -> B) (p : Path (A -> B) f g) 
---                     (e1 : IsEquiv A B f) (e2 : IsEquiv A B g)
---                   : PathP (<x> IsEquiv A B (p @ x)) e1 e2 = 
---    J (A -> B) f (\ (g : A -> B) (p : Path (A -> B) f g) -> (e1 : IsEquiv A B f) (e2 : IsEquiv A B g) -> PathP (<x> IsEquiv A B (p @ x)) e1 e2)
---                 (\ (e1 : IsEquiv A B f) (e2 : IsEquiv A B f) -> IsEquiv_level A B f e1 e2)
---                 g p e1 e2
+comp_inv_r2 (A : U) (a0 : A) : (a1 : A) (p : Path A a0 a1)
+          -> Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> <y> p @ y, (y = 1) -> <y> p @ y ])
+                                 (<_> a1) =
+   J A a0 (\ (a1 : A) (p : Path A a0 a1) ->
+          Path (Path A a1 a1) (<y> comp (<_> A) a0 [ (y = 0) -> p, (y = 1) -> <y> p @ y ]) (<_> a1))
+          ?
 
 -- ----------------------------------------------------------------------
--- -- univalence
+-- hlevels
 
--- idEquiv (A:U) : Equiv A A = (\ (x:A) -> x, Singleton_level A)
+raise_Contractible_Prop (A : U) (Alevel : Contractible A) : HProp A = ?
+  -- \ (a : A) (b : A) -> <x> comp (<_> A) (Alevel.2 a @ -x) [(x=1) -> <x> Alevel.2 b @ x]
 
--- ua (A B : U) (e : Equiv A B) : Path U A B =
---   <i> Glue B [ (i = 0) -> (A,e)
---              , (i = 1) -> (B,idEquiv B) ]
-    
--- Equiv (A B : U) : U = (f : A -> B) * IsEquiv A B f
+raise_Prop_Set (A : U) (h : HProp A) (a b : A) (p q : Path A a b) : Path (Path A a b) p q =
+ <j i> comp (<_> A) a [ (i=0) -> h a a
+                      , (i=1) -> h a b
+                      , (j=0) -> h a (p @ i)
+                      , (j=1) -> h a (q @ i)]
 
--- use_IsEquiv_level_het (A B : U) (f g : A -> B) (p : Path (A -> B) f g) 
---                     (e1 : IsEquiv A B f) (e2 : IsEquiv A B g)
---                   : PathP (<x> IsEquiv A B (p @ x)) e1 e2 = 
---    J (A -> B) f (\ (g : A -> B) (p : Path (A -> B) f g) -> (e1 : IsEquiv A B f) (e2 : IsEquiv A B g) -> PathP (<x> IsEquiv A B (p @ x)) e1 e2)
---                 (\ (e1 : IsEquiv A B f) (e2 : IsEquiv A B f) -> IsEquiv_level A B f e1 e2)
---                 g p e1 e2
+HProp_level (A : U) (f g : HProp A) : Path (HProp A) f g =
+ <i> \(a b :A) -> (raise_Prop_Set A f a b (f a b) (g a b)) @ i
 
--- inv_path (A : U) (a b : A) : Path U (Path A a b) (Path A b a) = ?
---    -- ua (Path A a b) (Path A b a) 
---    --    (\ (p : Path A a b) -> <x> p @ -x)
---    --    (\ (p : Path A b a) -> <x> p @ -x)
---    --    (\ (p : Path A b a) -> <_> p)
---    --    (\ (p : Path A a b) -> <_> p)
+HSet_level (A : U) (f g : HSet A) : Path (HSet A) f g =
+ <i> \(a b :A) -> (HProp_level (Path A a b) (f a b) (g a b)) @ i
 
+Pi_level_prop (A : U) (B : A -> U) (h : (x : A) -> HProp (B x))
+       (f0 f1 : (x : A) -> B x) : Path ((x : A) -> B x) f0 f1
+  = <i> \ (x:A) -> (h x (f0 x) (f1 x)) @ i
+
+-- ----------------------------------------------------------------------
+-- basic types
+
+data Unit = tt
+
+-- for controling reduction
+STUCK : Unit = ?
+NONSTUCK : Unit = tt
+
+Contractible_level (A : U) : HProp (Contractible A) =
+  \ (a : Contractible A) (b : Contractible A) -> eq a.1 a.2 b.1 b.2 where
+  square (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) (a : A) :
+         Unit -> PathP (<x> Path A (eq1 c2 @ x) a)
+             (eq1 a) (eq2 a) = split tt -> ?
+--         <x><y> eq1 (eq1 c2 @ x) @ y
+
+  eq (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) :
+        Path (Contractible A) (c1 , eq1) (c2, eq2) =
+        <x> (eq1 c2 @ x , \ (a : A) -> <y> square c1 eq1 c2 eq2 a STUCK @ x @ y)
+
+
+data Void =
+
+abort (A : U) : Void -> A = split{}
+
+Unit_level : HProp Unit = rem
+  where rem1 : (x:Unit) -> Path Unit x tt = split tt -> refl Unit tt
+        rem (x:Unit) : (y:Unit) -> Path Unit x y = split tt -> rem1 x
+
+Void_level : HProp Void = \ (x y:Void) -> abort (Path Void x y) x
+
+data Either (A B : U) = inl (a : A)
+                      | inr (b : B)
+
+Times (A B : U) : U = (_ : A) * B
+
+-- Times_level (A B :U) (pA: prop A) (pB: A -> prop B) : prop (and A B) =
+--  \ (u v:and A B) -> <i>((pA u.1 v.1)@i, (pB u.1 u.2 v.2)@i)
+
+data Bool = true | false
+
+-- ----------------------------------------------------------------------
+-- equivalences
+
+Fiber (A B:U) (f:A->B) (b:B) : U = (x:A) * Path B b (f x)
+
+Fiber_idfun_level (A:U) (a:A) : HProp (Fiber A A (\ (x:A) -> x) a) = ?
+-- rem
+--  where F : U = Fiber A A (\ (x:A) -> x) a
+--        rem (u v:F) : Path F u v = <i>(rem1 @ i,rem2 @ i)
+--          where x : A = u.1
+--                p : Path A a x = u.2
+--                y : A = v.1
+--                q : Path A a y = v.2
+--                rem1 : Path A x y = <i>comp A a [(i=0) -> p,(i=1) -> q]
+--                rem2 : PathP (<i>Path A a (rem1@i)) p q = <i j>comp A a [(i=0) -> <l>p@(j/\l),(i=1) -> <l>q@(j/\l)]
+
+IsEquiv (A B:U) (f:A->B) : U = (y:B) -> Contractible (Fiber A B f y)
+
+idfun_IsEquiv (A:U) : IsEquiv A A (idfun A) = \ (a:A) -> ((a,refl A a), Fiber_idfun_level A a (a,refl A a))
+
+Equiv (A B : U) : U = (f : A -> B) * IsEquiv A B f
+
+IsEquiv_level (A B : U) (f : A -> B) : HProp (IsEquiv A B f)
+  = Pi_level_prop B (\ (y:B) -> Contractible (Fiber A B f y)) (\ (y:B) -> Contractible_level (Fiber A B f y))
+
+use_IsEquiv_level_het (A B : U) (f g : A -> B) (p : Path (A -> B) f g)
+                    (e1 : IsEquiv A B f) (e2 : IsEquiv A B g)
+                  : PathP (<x> IsEquiv A B (p @ x)) e1 e2 =
+   J (A -> B) f (\ (g : A -> B) (p : Path (A -> B) f g) -> (e1 : IsEquiv A B f) (e2 : IsEquiv A B g) -> PathP (<x> IsEquiv A B (p @ x)) e1 e2)
+                (\ (e1 : IsEquiv A B f) (e2 : IsEquiv A B f) -> IsEquiv_level A B f e1 e2)
+                g p e1 e2
+
+----------------------------------------------------------------------
+-- univalence
+
+idEquiv (A:U) : Equiv A A = (\ (x:A) -> x, Singleton_level A)
+
+ua (A B : U) (e : Equiv A B) : Path U A B =
+  <i> Glue B [ (i = 0) -> (A,e)
+             , (i = 1) -> (B,idEquiv B) ]
+
+Equiv (A B : U) : U = (f : A -> B) * IsEquiv A B f
+
+use_IsEquiv_level_het (A B : U) (f g : A -> B) (p : Path (A -> B) f g)
+                    (e1 : IsEquiv A B f) (e2 : IsEquiv A B g)
+                  : PathP (<x> IsEquiv A B (p @ x)) e1 e2 =
+   J (A -> B) f (\ (g : A -> B) (p : Path (A -> B) f g) -> (e1 : IsEquiv A B f) (e2 : IsEquiv A B g) -> PathP (<x> IsEquiv A B (p @ x)) e1 e2)
+                (\ (e1 : IsEquiv A B f) (e2 : IsEquiv A B f) -> IsEquiv_level A B f e1 e2)
+                g p e1 e2
+
+inv_path (A : U) (a b : A) : Path U (Path A a b) (Path A b a) = ?
+   -- ua (Path A a b) (Path A b a)
+   --    (\ (p : Path A a b) -> <x> p @ -x)
+   --    (\ (p : Path A b a) -> <x> p @ -x)
+   --    (\ (p : Path A b a) -> <_> p)
+   --    (\ (p : Path A a b) -> <_> p)
