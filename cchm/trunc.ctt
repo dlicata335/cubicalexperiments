@@ -53,4 +53,8 @@ gTruncIsOneType (A : U) : OneType (gTrunc A) =
 --   | spoke (r : S (suc' n) -> Trunc A n)(x : S (suc' n))
 --      <i> [ (i=0) -> r x, (i=1) -> hub r ]
 
-
+pathSpacePropTrunc (A : U) (x y : A) :
+  propTrunc (Path A x y) -> Path (setTrunc A) (inc x) (inc y) =
+  split
+    inc p -> <i> inc (p @ i)
+    inh a b @ i -> <j> inh{setTrunc A} (inc x) (inc y) (pathSpacePropTrunc A x y a) (pathSpacePropTrunc A x y b) @ i @ j
