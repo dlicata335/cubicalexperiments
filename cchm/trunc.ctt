@@ -13,3 +13,7 @@ data setTrunc (A : U)
           , (i = 1) -> q @ j
           , (j = 0) -> a
           , (j = 1) -> b ]
+
+data Trunc (A : U) = inc (A : U)
+                   | 
+  

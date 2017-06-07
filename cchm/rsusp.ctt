@@ -12,3 +12,80 @@ data RSusp (A : PointedType) = north
 
 RSuspP (A : PointedType) : PointedType = (RSusp A, north)
 
+reflId (A : U) (a : A) : Id A a a = idC (<_> a) [ -> a ]
+
+merid' (A : PointedType)(a:A.1) : Id (RSusp A) north north = idC (<i> merid {RSusp A} a @ i) []
+
+
+
+meridpt' (A : PointedType) : Id (Id (RSusp A) north north) (merid' A A.2) (reflId (RSusp A) north) =
+  idC (<i> idC (<j> meridpt {RSusp A} @ i @ j) [ (i=1) -> north ]) []
+
+elim
+  (A : PointedType)
+  (P : RSusp A -> U)
+  (n : P north)
+  (m : (a : A.1) -> PathP (<i> P (merid {RSusp A} a @ i)) n n)
+  (m' : PathP (<i> PathP (<j> P (meridpt {RSusp A} @ i @ j)) n n) (m A.2) (<_> n))
+  : (x : RSusp A) -> P x
+  = split
+    north -> n
+    merid a @ i -> m a @ i
+    meridpt @ i j -> m' @ i @ j
+
+rec
+  (A : PointedType)
+  (P : U)
+  (n : P)
+  (m : (a : A.1) -> Path P n n)
+  (m' : Path (Path P n n) (m A.2) (<_> n))
+  : RSusp A -> P
+  = split
+    north -> n
+    merid a @ i -> m a @ i
+    meridpt @ i j -> m' @ i @ j
+
+-- rec
+--   (A : PointedType)
+--   (P : U)
+--   (n : P)
+--   (m : (a : A.1) -> Path P n n)
+--   (m' : Path (Path P n n) (m A.2) (<_> n))
+--   : RSusp A -> P
+--   = split
+--     north -> n
+--     merid a @ i -> m a @ i
+--     meridpt @ i j -> m' @ i @ j
+
+-- rec'
+--   (A : PointedType)
+--   (P : U)
+--   (n : P)
+--   (m : (a : A.1) -> Id P n n)
+--   (m' : Id (Id P n n) (m A.2) (reflId P n))
+--   : RSusp A -> P
+--   = split
+--     north -> n
+--     merid a @ i -> idJ P n (\ (x:P)(p : Id P n x) -> P) n n (m a)
+--     meridpt @ i j -> ?
+
+PComp
+  (A : U)
+  (a b c : A)
+  (p : Path A a b)
+  (q : Path A b c)
+  : Path A a c =
+    J A b (\ (c:A)(q : Path A b c) -> Path A a c) p c q
+
+compPath' (A : U) (a b c : A) (p : Path A a b) (q : Path A b c) : Path A a c =
+  <i> comp (<_> A) b [ (i=0) -> <j> p @ -j, (i=1) -> q ]
+
+data S1 = base | loop <i> [ (i=0) -> base , (i=1) -> base ]
+
+loopS1 : Path S1 base base = <i> loop {S1} @ i
+
+loop2 : Path S1 base base = compPath' S1 base base base loopS1 loopS1
+
+loop3 : Path S1 base base = compPath' S1 base base base loopS1 loop2
+
+loop3' : Path S1 base base = compPath' S1 base base base loop2 loopS1

@@ -1,3 +1,10 @@
-A first step is to read through
-https://github.com/Saizan/cubical-demo
-and see what's there and how it works.  
+24/02/2017: Requires the "master" branch of Agda:
+
+```
+git clone https://github.com/agda/agda
+cd agda
+cabal install
+```
+
+
+
