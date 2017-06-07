@@ -10,12 +10,11 @@ oneTurn (l : OmegaS1) : OmegaS1 = compS1 l loopS1
 
 backTurn (l: OmegaS1) : OmegaS1 = compS1 l invLoop
 
+-- TODO: replace with inverse of comp_inv_r
 compInv (A:U) (a:A) : (x:A) (p:Path A a x) -> Path (Path A x x) (<_>x) (compPath A x a x (<i>p@-i) p) =
- J A a (\  (x:A) (p:Path A a x) -> Path (Path A x x) (<_>x) (compPath A x a x (<i>p@-i) p)) rem
+  J A a (\  (x:A) (p:Path A a x) -> Path (Path A x x) (<_>x) (compPath A x a x (<i>p@-i) p)) rem
  where rem : Path (Path A a a) (<_>a) (<i>comp (<_>A) a [(i=0) -> <_>a,(i=1) -> <_>a]) =
         <j i>comp (<_>A) a [(j=0) -> <_>a,(i=0) -> <_>a,(i=1) -> <_>a]
-
-compInvS1 : Path OmegaS1 (<_> base) (compS1 invLoop loopS1) = compInv S1 base base loopS1
 
 lemFib1 (A:U) (F G : A -> U) (a:A) (fa : F a -> G a) :
    (x:A) (p : Path A a x) -> (fx : F x -> G x) ->
@@ -92,7 +91,7 @@ lem1ItPos : (n:nat) -> Path OmegaS1 (loopIt (sucZ (inr n))) (oneTurn ((loopIt (i
 test1ItNeg (n:nat) : U = Path OmegaS1 (loopIt (sucZ (inl n))) (oneTurn ((loopIt (inl n))))
 
 lem1ItNeg : (n:nat) -> Path OmegaS1  (loopIt (sucZ (inl n))) (oneTurn (loopIt (inl n))) = split
- zero -> compInvS1
+ zero -> compInv S1 base base loopS1
  suc p -> compInv S1 base base (loopIt (inl p)) base invLoop
 
 lem1It : (n:Z) -> Path OmegaS1 (loopIt (sucZ n)) (oneTurn  (loopIt n)) = split
