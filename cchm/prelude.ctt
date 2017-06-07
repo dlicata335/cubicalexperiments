@@ -476,3 +476,40 @@ decStable (A:U) : dec A -> stable A = split
 decEqCong (A B : U) (f : A -> B) (g : B -> A) : dec A -> dec B = split
   inl a -> inl (f a)
   inr h -> inr (\ (b:B) -> h (g b))
+
+
+---- Path lemmas -- 
+
+inv (A : U) (a b : A) (p : Path A a b) : Path A b a = <i> p @ -i
+
+compPath (A : U) (a b c : A) (p : Path A a b) (q : Path A b c) : Path A a c =
+  <i> comp (<j>A) (p @ i) [ (i = 1) -> q, (i=0) -> <j> a ]
+
+compPath' (A : U) (a b c : A) (p : Path A a b) (q : Path A b c) : Path A a c =
+  subst A (Path A a) b c q p
+
+compPath'' (A : U) (a b : A) (p : Path A a b) : (c : A) -> (q : Path A b c) -> Path A a c =
+  J A a ( \ (b : A) (p : Path A a b) -> (c : A) -> (q : Path A b c) -> Path A a c) rem b p
+    where rem (c : A) (p : Path A a c) : Path A a c = p
+
+compUp (A : U) (a a' b b' : A)
+       (p : Path A a a') (q : Path A b b') (r : Path A a b) : Path A a' b' =
+  <i> comp (<j>A) (r @ i) [(i = 0) -> p, (i = 1) -> q]
+
+compDown (A : U) (a a' b b' : A)
+         (p : Path A a a') (q: Path A b b') : Path A a' b' -> Path A a b =
+ compUp A a' a b' b (inv A a a' p) (inv A b b' q)
+
+lemCompInv (A:U) (a b c:A) (p:Path A a b) (q:Path A b c)
+  : Path (Path A a b) (compPath A a c b (compPath A a b c p q) (inv A b c q)) p =
+  <j i> comp (<k>A)
+          ((fill (<k>A) (p @ i) [(i=0) -> <k>a, (i=1) -> q]) @ -j)
+          [ (i=0) -> <k> a
+          , (i=1) -> <k> q @ - (j \/  k)
+          , (j=0) -> fill (<k>A) ((compPath A a b c p q @ i))
+                       [(i=0) -> <k>a, (i=1) -> <k> q @ -k ]
+          , (j=1) -> <k> p @ i
+          ]
+
+lemInv (A:U) (a b:A) (p:Path A a b) : Path (Path A b b) (compPath A b a b (inv A a b p) p)  (refl A b) =
+   <j i> comp (<k>A) (p @ (-i \/ j)) [(i=0) -> <l>b, (j=1) -> <l>b, (i=1) -> <k> p @ (j \/ k)]
