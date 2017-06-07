@@ -511,5 +511,12 @@ lemCompInv (A:U) (a b c:A) (p:Path A a b) (q:Path A b c)
           , (j=1) -> <k> p @ i
           ]
 
+lemCompInv2 (A:U) (a b:A) (q:Path A a b) : (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i)) =
+ J A b (\ (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i))) rem
+ where rem : Path (Path A a b) q
+                           (<i>comp (<_>A) (comp (<_>A) (q@i) [(i=0) -> <_>a,(i=1) -> <_>b]) [(i=0) -> <_>a,(i=1) -> <_>b]) =
+          <j i>comp (<_>A) (comp (<_>A) (q@i) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]
+
+
 lemInv (A:U) (a b:A) (p:Path A a b) : Path (Path A b b) (compPath A b a b (inv A a b p) p)  (refl A b) =
    <j i> comp (<k>A) (p @ (-i \/ j)) [(i=0) -> <l>b, (j=1) -> <l>b, (i=1) -> <k> p @ (j \/ k)]

@@ -12,23 +12,12 @@ helix : S1 -> U = split
   loop @ i -> sucPathZ @ i
 
 oneTurn (l : OmegaS1) : OmegaS1 = compS1 l loopS1
-
 backTurn (l: OmegaS1) : OmegaS1 = compS1 l invLoop
 
--- TODO: replace with inverse of comp_inv_r
-compInv (A:U) (a:A) : (x:A) (p:Path A a x) -> Path (Path A x x) (<_>x) (compPath A x a x (<i>p@-i) p) =
- J A a (\  (x:A) (p:Path A a x) -> Path (Path A x x) (<_>x) (compPath A x a x (<i>p@-i) p)) rem
- where rem : Path (Path A a a) (<_>a) (<i>comp (<_>A) a [(i=0) -> <_>a,(i=1) -> <_>a]) =
-        <j i>comp (<_>A) a [(j=0) -> <_>a,(i=0) -> <_>a,(i=1) -> <_>a]
 
-lemCompInv2 (A:U) (a b:A) (q:Path A a b) : (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i)) =
- J A b (\ (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i))) rem
- where rem : Path (Path A a b) q
-                           (<i>comp (<_>A) (comp (<_>A) (q@i) [(i=0) -> <_>a,(i=1) -> <_>b]) [(i=0) -> <_>a,(i=1) -> <_>b]) =
-          <j i>comp (<_>A) (comp (<_>A) (q@i) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]
+compInvS1 : Path OmegaS1 (refl S1 base) (compS1 invLoop loopS1) =
+  <x> comp_inv_r S1 base base (<y> loop {S1} @ -y) @ -x
 
-
-compInvS1 : Path OmegaS1 (refl S1 base) (compS1 invLoop loopS1) = compInv S1 base base loopS1
 
 -- constant transport
 
