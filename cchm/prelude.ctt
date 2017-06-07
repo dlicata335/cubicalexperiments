@@ -65,6 +65,21 @@ Contractible_level (A : U) : HProp (Contractible A) =
         Path (Contractible A) (c1 , eq1) (c2, eq2) =
         <x> (eq1 c2 @ x , \ (a : A) -> <y> square c1 eq1 c2 eq2 a STUCK @ x @ y)
 
+propSet (A : U) (h : HProp A) : HSet A =
+ \(a b : A) (p q : Path A a b) ->
+   <j i> comp (<k>A) a [ (i=0) -> h a a
+                       , (i=1) -> h a b
+                       , (j=0) -> h a (p @ i)
+                       , (j=1) -> h a (q @ i)]
+
+propIsProp (A : U) : HProp (HProp A) =
+  \(f g : HProp A) -> <i> \(a b : A) ->
+    propSet A f a b (f a b) (g a b) @ i
+
+setIsProp (A : U) : HProp (HSet A) =
+ \(f g : HSet A) -> <i> \(a b :A) ->
+   propIsProp (Path A a b) (f a b) (g a b) @ i
+
 
 data Void =
 
