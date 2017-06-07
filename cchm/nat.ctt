@@ -1,0 +1,7 @@
+module nat where
+
+data nat = zero | suc (n : nat)
+
+one : nat = suc zero
+two : nat = suc one
+three : nat = suc two
