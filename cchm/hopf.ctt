@@ -75,4 +75,8 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
           setLoop)
 
 
+-- The map h from 9.3
+hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 = 
+  itMapOmegaRefl three ( (x :S2) * (hopf x), (north,base)) (Join S1 S1) totalHopfToJoin
+    (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
 
