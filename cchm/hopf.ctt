@@ -112,7 +112,7 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
   where
     isOneTypeS1 : OneType S1 =
       lemPropFibS1
-        (\(x:S1) (y:S1) -> HSet (Path S1 x y))
+        (\(x:S1) -> (y:S1) -> HSet (Path S1 x y))
         (\(x:S1) ->
           Pi_level_prop
             S1
