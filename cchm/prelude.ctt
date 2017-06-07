@@ -86,11 +86,11 @@ Times (A B : U) : U = (_ : A) * B
 
 data Bool = true | false
 
-data nat = zero | suc (n : nat)
+data Nat = zero | suc (n : Nat)
 
-one : nat = suc zero
-two : nat = suc one
-three : nat = suc two
+one : Nat = suc zero
+two : Nat = suc one
+three : Nat = suc two
 
 -- ----------------------------------------------------------------------
 -- path stuff
