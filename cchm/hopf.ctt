@@ -101,10 +101,14 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
       hopfOne
       (<_> base)
       one
-      (truncFibOmega ptS2 hopf base two isGroupoidS1 (<_> north))
+      (truncFibOmega ptS2 hopf base two isOneTypeS1 (<_> north))
       (<_> pt (Omega ptS2)))
     p
   where
-    isGroupoidS1 (a b : S1) : HSet (Path S1 a b) = ?
+    -- is there a direct way to show this? In the cubicaltt repo (and Brunerie's thesis), the proof of this uses the fact that
+    -- pi1S1 = Z
+    isOneTypeS1 : OneType S1 =
+      ?
+
 
 
