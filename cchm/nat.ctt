@@ -43,10 +43,10 @@ add_comm3 (a b c : Nat) : Path Nat (add a (add b c)) (add c (add b a)) =
       rem2 : Path Nat (add (add c b) a) (add c (add b a)) = <i> assocAdd c b a @ -i
   in <i> comp (<_> Nat) (rem1 @ i) [ (i = 0) -> <j> rem @ -j, (i = 1) -> rem2 ]
 
-Natcancelr (a b : Nat) : (x : Nat) -> Path Nat (add a x) (add b x) -> Path Nat a b = split
+natcancelr (a b : Nat) : (x : Nat) -> Path Nat (add a x) (add b x) -> Path Nat a b = split
   zero -> \(h : Path Nat a b) -> h
   suc x' -> \(h : Path Nat (suc (add a x')) (suc (add b x'))) ->
-    Natcancelr a b x' (sucInj (add a x') (add b x') h)
+    natcancelr a b x' (sucInj (add a x') (add b x') h)
 
 idNat : Nat -> Nat = split
   zero -> zero
@@ -73,13 +73,13 @@ znots (n : Nat) : not (Path Nat zero (suc n)) =
 snotz (n : Nat) : not (Path Nat (suc n) zero) =
  \ (h:Path Nat (suc n) zero) -> znots n (inv Nat (suc n) zero h)
 
-NatDec : (n m:Nat) -> dec (Path Nat n m) = split
+natDec : (n m:Nat) -> dec (Path Nat n m) = split
  zero -> caseDNat (\ (m:Nat) -> dec (Path Nat zero m)) (inl (refl Nat zero)) (\ (m:Nat) -> inr (znots m))
  suc n -> caseDNat (\ (m:Nat) -> dec (Path Nat (suc n) m)) (inr (snotz n))
    (\ (m:Nat) -> decEqCong (Path Nat n m) (Path Nat (suc n) (suc m)) (\ (p:Path Nat n m) -> <i> suc (p @ i))
-                 (sucInj n m) (NatDec n m))
+                 (sucInj n m) (natDec n m))
 
-NatSet : HSet Nat = hedberg Nat NatDec
+natSet : HSet Nat = hedberg Nat natDec
 
 equalNat : Nat -> Nat -> Bool = split
     zero -> split@(Nat -> Bool) with

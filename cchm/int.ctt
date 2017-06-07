@@ -6,6 +6,7 @@ import equiv
 import prelude
 import discor
 import hedberg
+import nat
 
        ---------------------------------------------------
        -- Example: Non-trivial equality between Z and Z --
