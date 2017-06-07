@@ -2,6 +2,7 @@
 module helix where
 
 import s1
+import int
 -- import equiv
 -- import pi
 

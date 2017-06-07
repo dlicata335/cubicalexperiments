@@ -87,6 +87,8 @@ abort (A : U) : Void -> A = split{}
 
 not (A : U) : U = A -> Void
 
+stable (A : U) : U = not (not A) -> A
+
 Unit_level : HProp Unit = rem
   where rem1 : (x:Unit) -> Path Unit x tt = split tt -> refl Unit tt
         rem (x:Unit) : (y:Unit) -> Path Unit x y = split tt -> rem1 x
@@ -446,3 +448,27 @@ funDepTr (A0 A1 :U) (p:Path U A0 A1) (u0:A0) (u1:A1) : Path U (PathP p u0 u1) (P
 dec (A : U) : U = Either A (not A)
 
 Discrete (A : U) : U = (a b : A) -> dec (Path A a b)
+
+
+
+
+--- Prop----------
+
+propVoid : HProp Void = \ (x y:Void) -> abort (Path Void x y) x
+
+propNot (A:U) : HProp (not A) = \ (f g:not A) -> <i>\(x:A) -> (propVoid (f x) (g x))@i
+
+dNot (A:U) (a:A) : not (not A) = \ (h : not A) -> h a
+
+--- Const ---
+
+const (A : U) (f : A -> A) : U = (x y : A) -> Path A (f x) (f y)
+
+exConst (A : U) : U = (f:A -> A) * const A f
+
+stableConst (A : U) (sA: stable A) : exConst A =
+ (\ (x:A) -> sA (dNot A x),\ (x y:A) -> <i>sA (propNot (not A) (dNot A x) (dNot A y) @ i))
+
+decStable (A:U) : dec A -> stable A = split
+ inl a -> \ (h :not (not A)) -> a
+ inr b -> \ (h :not (not A)) -> abort A (h b)
