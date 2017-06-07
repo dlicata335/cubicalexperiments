@@ -85,6 +85,8 @@ data Void =
 
 abort (A : U) : Void -> A = split{}
 
+not (A : U) : U = A -> Void
+
 Unit_level : HProp Unit = rem
   where rem1 : (x:Unit) -> Path Unit x tt = split tt -> refl Unit tt
         rem (x:Unit) : (y:Unit) -> Path Unit x y = split tt -> rem1 x
@@ -476,3 +478,10 @@ funDepTr (A0 A1 :U) (p:Path U A0 A1) (u0:A0) (u1:A1) : Path U (PathP p u0 u1) (P
       (PathP p (fill (<_> A0) u0 [] @ i) u1)
       [(i=1) -> <j> PathP (<k> p @ j\/k) (comp (<k> p @ j/\k) u0 []) u1,
        (i=0) -> <_> PathP p u0 u1]
+
+
+------------- Discrete -------------------
+
+dec (A : U) : U = Either A (not A)
+
+Discrete (A : U) : U = (a b : A) -> dec (Path A a b)
