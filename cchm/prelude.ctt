@@ -472,3 +472,7 @@ stableConst (A : U) (sA: stable A) : exConst A =
 decStable (A:U) : dec A -> stable A = split
  inl a -> \ (h :not (not A)) -> a
  inr b -> \ (h :not (not A)) -> abort A (h b)
+
+decEqCong (A B : U) (f : A -> B) (g : B -> A) : dec A -> dec B = split
+  inl a -> inl (f a)
+  inr h -> inr (\ (b:B) -> h (g b))

@@ -1,6 +1,7 @@
 module nat where
 
 import prelude
+import hedberg
 
 
 pred : Nat -> Nat = split
@@ -78,12 +79,12 @@ NatDec : (n m:Nat) -> dec (Path Nat n m) = split
    (\ (m:Nat) -> decEqCong (Path Nat n m) (Path Nat (suc n) (suc m)) (\ (p:Path Nat n m) -> <i> suc (p @ i))
                  (sucInj n m) (NatDec n m))
 
-NatSet : set Nat = hedberg Nat NatDec
+NatSet : HSet Nat = hedberg Nat NatDec
 
-equalNat : Nat -> Nat -> bool = split
-    zero -> split@(Nat -> bool) with
+equalNat : Nat -> Nat -> Bool = split
+    zero -> split@(Nat -> Bool) with
       zero  -> true
       suc n -> false
-    suc m -> split@(Nat -> bool) with
+    suc m -> split@(Nat -> Bool) with
       zero  -> false
       suc n -> equalNat m n
