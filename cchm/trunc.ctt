@@ -24,7 +24,7 @@ setTruncIsSet (A : U) : HSet (setTrunc A) =
 
 data gTrunc (A : U)
   = inc (a : A)
-  | squashC (a b : gTrunc A) (p q : Path (gTrunc A) a b)
+  | inh (a b : gTrunc A) (p q : Path (gTrunc A) a b)
             (r s: Path (Path (gTrunc A) a b) p q) <i j k>
        [ (i=0) -> r @ j @ k
        , (i=1) -> s @ j @ k
@@ -37,7 +37,7 @@ gTruncIsOneType (A : U) : OneType (gTrunc A) =
   \(a b : gTrunc A)
    (p q : Path (gTrunc A) a b)
    (r s : Path (Path (gTrunc A) a b) p q)
-   -> <i j k> squashC {gTrunc A} a b p q r s @ i @ j @ k
+   -> <i j k> inh {gTrunc A} a b p q r s @ i @ j @ k
 
 -- General n-trunction
 -- This HIT currently does not work properly
