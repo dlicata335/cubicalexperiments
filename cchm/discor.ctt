@@ -42,12 +42,10 @@ orDisc (A B : U) (dA : Discrete A) (dB : Discrete B) :
                where rem : dec (Path A a a1) -> dec (Path (Either A B) (inl a) (inl a1)) = split
                             inl p -> inl (<i> inl (p @ i))
                             inr h -> inr (\ (p:Path (Either A B) (inl a) (inl a1)) -> h (injInl A B a a1 p))
-            inr b -> inr myInlNotInr 
-	    	where myInlNotInr : not (Path (Either A B) (inl a) (inr b)) = undefined -- (inlNotinr A B a b)
+            inr b -> inr (inlNotinr A B a b)
   inr b -> rem1
    where rem1 : (z1:Either A B) -> dec (Path (Either A B) (inr b) z1) = split
-            inl a -> inr myInrNotInl
-	    	where myInrNotInl : not (Path (Either A B) (inr b) (inl a)) = undefined -- (inrNotinl A B a b)
+            inl a -> inr (inrNotinl A B a b)
             inr b1 ->  rem (dB b b1)
                where rem : dec (Path B b b1) -> dec (Path (Either A B) (inr b) (inr b1)) = split
                             inl p -> inl (<i> inr (p @ i))
