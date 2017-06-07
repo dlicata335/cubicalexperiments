@@ -7,53 +7,7 @@ import join
 import pointedtypes
 
 
----- Extra prereqs---------------------------------
-
 S2 : U = Susp S1
-
-
-Omega (Z : PointedType) : PointedType = (Path Z.1 (Z.2) (Z.2), <_> Z.2)
-
--- Iterated loop space
-itOmega : Nat -> PointedType -> PointedType = split
-  zero  -> \ (A:PointedType) -> A
-  suc n -> \(A:PointedType) -> itOmega n (Omega A)
-
-fibOmega (B : PointedType) (P : B.1 -> U) (f : P (B.2)) (p : (Omega B).1) : U =
- PathP (<i> P (p @ i)) f f
-
-itFibOmega : (n : Nat) (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> (itOmega n B).1 -> U
- = split
-  zero  -> \ (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> P
-  suc n -> \ (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> itFibOmega n (Omega B) (fibOmega B P f) (refl (P (B.2)) f)
-
-inhOrTrunc (A:U) : Nat -> U = split
-  zero  -> A
-  suc n -> (x y : A) -> inhOrTrunc (Path A x y) n
-
-subst (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a0) : P a1 = comp (<x> P (p @ x)) b []
-
-substInv (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a1) : P a0 = comp (<x> P (p @ -x)) b []
-
-funDepTr (A0 A1 :U) (p:Path U A0 A1) (u0:A0) (u1:A1) : Path U (PathP p u0 u1) (Path A1 (comp p u0 []) u1) =
-  <i>
-    comp
-      (<_> U)
-      (PathP p (fill (<_> A0) u0 [] @ i) u1)
-      [(i=1) -> <j> PathP (<k> p @ j\/k) (comp (<k> p @ j/\k) u0 []) u1,
-       (i=0) -> <_> PathP p u0 u1]
-
-
-
-truncFibOmega (B : PointedType) (P : B.1 -> U) (f : P (pt B)) (n : Nat)
-  (tr:inhOrTrunc (P (pt B)) (suc n)) (p : (Omega B).1) : inhOrTrunc (fibOmega B P f p) n
- = substInv U (\ (X:U) -> inhOrTrunc X n)
-    (PathP (<i> P(p @ i)) f f)
-    (Path (P (pt B)) (subst B.1 P (pt B) (pt B) p f) f)
-    (funDepTr (P (pt B)) (P (pt B)) (<i>P (p@i)) f f)
-    (tr (subst B.1 P (pt B) (pt B) p f) f)
-
----------------------------------
 
 hopf : S2 -> U = split
   north -> S1

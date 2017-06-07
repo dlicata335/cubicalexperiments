@@ -16,6 +16,10 @@ compS1 (p : OmegaS1) (q : OmegaS1) : OmegaS1 = <x> comp (<_> S1) (p @ x) [(x=0) 
 loopS1 : OmegaS1 = <i> loop{S1} @ i
 loopS1_2 : OmegaS1= compS1 loopS1 loopS1
 
+
+invLoop : OmegaS1 = <i> loop {S1} @ -i
+
+
 -- "rotation by angle x"
 -- adds loops
 
