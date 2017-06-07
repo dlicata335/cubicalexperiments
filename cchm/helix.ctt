@@ -173,7 +173,7 @@ setLoop : set OmegaS1 = substInv U set OmegaS1 Z OmegaS1equalsZ ZSet
 =======
 lem1ItNeg : (n:Nat) -> Path OmegaS1  (loopIt (sucZ (inl n))) (oneTurn (loopIt (inl n))) = split
  zero -> compInvS1
- suc p -> compInv ? ? ? ? ? ? --  S1 base base (loopIt (inl p)) base invLoop
+ suc p -> compInv S1 base base (loopIt (inl p)) base invLoop
 
 -- lem1It : (n:Z) -> Path OmegaS1 (loopIt (sucZ n)) (oneTurn  (loopIt n)) = split
 --  inl n -> lem1ItNeg n
