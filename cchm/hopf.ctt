@@ -86,8 +86,21 @@ hopfThree : (itOmega three ptS2).1 -> U = itFibOmega three ptS2 hopf base
 ptJoin (pA:PointedType) (B:U) : PointedType = (Join pA.1 B, joinl (pt pA))
 
 
--- fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
---   truncFibOmega (itOmega two ptS2) hopfTwo (refl (Id S1 base base) (refl S1 base)) zero
---     (truncFibOmega (Omega ptS2) hopfOne (refl S1 base) one
---           (truncFibOmega ptS2 hopf base two isGroupoidS1 (refl S2 north))
---         (refl (Omega ptS2).1 (pt (Omega ptS2)))) p
+fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
+  truncFibOmega
+    (itOmega two ptS2)
+    hopfTwo
+    (<_> <_> base)
+    zero
+    (truncFibOmega
+      (Omega ptS2)
+      hopfOne
+      (<_> base)
+      one
+      (truncFibOmega ptS2 hopf base two isGroupoidS1 (<_> north))
+      (<_> pt (Omega ptS2)))
+    p
+  where
+    isGroupoidS1 (a b : S1) (p0 q0 : Path S1 a b) (p1 q1 : Path (Path S1 a b) p0 q0) : Path (Path (Path S1 a b) p0 q0) p1 q1 =
+      ?
+
