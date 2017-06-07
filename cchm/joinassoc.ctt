@@ -1,0 +1,195 @@
+module joinassoc where
+
+import join
+import equiv
+
+rearrange_path (A : U) (t0 : A) (b0 b1 : A)
+               (bot : Path A b0 b1)
+               (left : Path A t0 b0)
+               (right : Path A t0 b1) :
+               Path U (PathP (<x> Path A t0 (bot @ x)) left right)
+                      (PathP (<x> Path A (left @ x) b1) right bot) =
+ J A b0 (\ (b1 : A) (bot : Path A b0 b1) ->
+             (left : Path A t0 b0)
+             (right : Path A t0 b1) ->
+             Path U (PathP (<x> Path A t0 (bot @ x)) left right)
+                  (PathP (<x> Path A (left @ x) b1) right bot))
+        (\ (left : Path A t0 b0)
+           (right : Path A t0 b0) ->
+             J A t0 (\ (b0 : A) (left : Path A t0 b0) ->
+                       (right : Path A t0 b0) ->
+                         Path U (PathP (<x> Path A t0 b0) left right)
+                              (PathP (<x> Path A (left @ x) b0) right (<_> b0)))
+                (\ (right : Path A t0 t0) -> inv_path (Path A t0 t0) (<_> t0) right)
+                b0 left right
+           )
+        b1 bot left right
+
+
+rearrange (A : U) (t0 : A) (b0 b1 : A)
+          (bot : Path A b0 b1)
+          (left : Path A t0 b0)
+          (right : Path A t0 b1)
+          (sq : PathP (<x> Path A t0 (bot @ x)) left right) :
+          (PathP (<x> Path A (left @ x) b1) right bot) =
+  transport (rearrange_path A t0 b0 b1 bot left right) sq
+
+rearrange' (A : U) (t0 : A) (b0 b1 : A)
+           (newbot : Path A b0 b1)
+           (newleft : Path A t0 b0)
+           (newright : Path A t0 b1)
+           (sq : PathP (<x> Path A (newleft @ x) b1) newright newbot) :
+           (PathP (<x> Path A t0 (newbot @ x)) newleft newright) =
+  transport (<x> rearrange_path A t0 b0 b1 newbot newleft newright @ -x) sq
+
+-- first map
+
+jassoc_lr_l (A B C : U) : Join A B -> Join A (Join B C) = split
+   joinl a -> joinl a
+   joinr b -> joinr (joinl b)
+   join a b @ x -> join{Join A (Join B C)} a (joinl b) @ x
+
+jassoc_lr_j (A B C : U) (c : C) : (ab : Join A B) -> Path (Join A (Join B C)) (jassoc_lr_l A B C ab) (joinr (joinr c)) = split
+   joinl a -> <y> join{Join A (Join B C)} a (joinr c) @ y
+   joinr b -> <y> joinr (join{Join B C} b c @ y)
+   join a b @ x -> <y> rearrange (Join A (Join B C)) (joinl a) (joinr (joinl b)) (joinr (joinr c))
+                                 (<x> joinr (join{Join B C} b c @ x))
+                                 (<x> join{Join A (Join B C)} a (joinl b) @ x)
+                                 (<x> join{Join A (Join B C)} a (joinr c) @ x)
+                                 (<x> <y> join{Join A (Join B C)} a (join{Join B C} b c @ x) @ y)
+                        @ x @ y
+
+jassoc_lr (A B C : U) : Join (Join A B) C -> Join A (Join B C) = split
+    joinl ab -> jassoc_lr_l A B C ab
+    joinr c -> joinr (joinr c)
+    join ab c @ x -> jassoc_lr_j A B C c ab @ x
+
+-- second map
+
+jassoc_rl_r (A B C : U) : Join B C -> Join (Join A B) C = split
+   joinl b -> joinl (joinr b)
+   joinr c -> joinr c
+   join b c @ x -> join{Join (Join A B) C} (joinr b) c @ x
+
+jassoc_rl_j (A B C : U) (a : A)
+ : (bc : Join B C) -> Path (Join (Join A B) C) (joinl (joinl a)) (jassoc_rl_r A B C bc) = split
+   joinl b -> <x> joinl (join{Join A B} a b @ x)
+   joinr c -> <x> join{Join (Join A B) C} (joinl a) c @ x
+   join b c @ x -> <y>(rearrange' (Join (Join A B) C) (joinl (joinl a)) (joinl (joinr b)) (joinr c)
+                                  (<x> join{Join (Join A B) C} (joinr b) c @ x)
+                                  (<x> joinl (join{Join A B} a b @ x))
+                                  (<x> join{Join (Join A B) C} (joinl a) c @ x)
+                                  (<x><y> join{Join (Join A B) C} (join{Join A B} a b @ x) c @ y)
+                         )@x@y
+
+jassoc_rl (A B C : U) : Join A (Join B C) -> Join (Join A B) C = split
+     joinl a -> joinl (joinl a)
+     joinr bc -> jassoc_rl_r A B C bc
+     join a bc @ x -> jassoc_rl_j A B C a bc @ x
+
+-- first composite
+
+jassoc_c1_l (A B C : U) : (ab : (Join A B)) -> Path (Join (Join A B) C) (jassoc_rl A B C (jassoc_lr_l A B C ab)) (joinl ab) = split
+  joinl a -> <_> joinl (joinl a)
+  joinr b -> <_> joinl (joinr b)
+  join a b @ x -> <_> joinl (join{Join A B} a b @ x)
+
+jassoc_c1_j (A B C : U) (c : C) : (ab : Join A B)
+         -> PathP (<x> Path (Join (Join A B) C) (jassoc_rl A B C (jassoc_lr_j A B C c ab @ x)) (join{Join (Join A B) C} ab c @ x))
+                (jassoc_c1_l A B C ab)
+                (<_> joinr c) = split
+  joinl a -> <x> <y> join{Join (Join A B) C} (joinl a) c @ x
+  joinr b -> <x> <y> join{Join (Join A B) C} (joinr b) c @ x
+  join a b @ z -> want @ z  where
+       -- FIXME x,y here should be z,x because it ends up on the left
+       FrontType : U = PathP (<x> Path (Join (Join A B) C) (joinl (join{Join A B} a b @ x)) (joinr c))
+                                 (<x> join{Join (Join A B) C} (joinl a) c @ x)
+                                 (<x> join{Join (Join A B) C} (joinr b) c @ x)
+
+       front : FrontType = <x> <y> jassoc_rl A B C (rearrange (Join A (Join B C)) (joinl a) (joinr (joinl b)) (joinr (joinr c))
+                                        (<x> joinr (join{Join B C} b c @ x))
+                                        (<x> join{Join A (Join B C)} a (joinl b) @ x)
+                                        (<x> join{Join A (Join B C)} a (joinr c) @ x)
+                                        (<x> <y> join{Join A (Join B C)} a (join{Join B C} b c @ x) @ y) @ x @ y)
+
+       innerfront : FrontType = (<x><y> join{Join (Join A B) C} (join{Join A B} a b @ x) c @ y)
+
+       MiddleStepType : U =
+                  PathP (<x> Path (Join (Join A B) C)
+                           (joinl (joinl a))
+                           (join{Join (Join A B) C} (joinr b) c @ x))
+                      (<x> joinl (join{Join A B} a b @ x))
+                      (<x> join{Join (Join A B) C} (joinl a) c @ x)
+
+       rpath : Path U MiddleStepType FrontType =
+                              rearrange_path (Join (Join A B) C) (joinl (joinl a)) (joinl (joinr b)) (joinr c)
+                                             (<x> join{Join (Join A B) C} (joinr b) c @ x)
+                                             (<x> joinl (join{Join A B} a b @ x))
+                                             (<x> join{Join (Join A B) C} (joinl a) c @ x)
+
+       -- not used below, but this is why the next step works
+       deq : Path FrontType front (transport rpath (transport (<x> rpath @ -x) innerfront)) = undefined -- <_> front
+
+       collapse : Unit -> Path FrontType front innerfront = undefined -- split
+         -- tt -> transport_inv MiddleStepType FrontType rpath innerfront
+
+       want : PathP(<z> PathP (<x> Path (Join (Join A B) C)
+                                          (front @ z @ x) -- front
+                                          (join{Join (Join A B) C} (join{Join A B} a b @ z) c @ x)) -- back
+                          (<_> joinl (join{Join A B} a b @ z)) -- left
+                          (<_> joinr c) ) -- right
+                        (<x> <y> join{Join (Join A B) C} (joinl a) c @ x) -- top
+                        (<x> <y> join{Join (Join A B) C} (joinr b) c @ x) = -- bot
+                        undefined
+            -- <z> <x> <y> comp (<_> Join (Join A B) C) ((innerfront @ z @ x)) [(y=0) -> <y> collapse STUCK @ -y @ z @ x]
+
+jassoc_c1 (A B C : U) : (j : Join (Join A B) C) -> Path (Join (Join A B) C) (jassoc_rl A B C (jassoc_lr A B C j)) j = split
+  joinl ab -> jassoc_c1_l A B C ab
+  joinr c -> <_> joinr c
+  join ab c @ x -> <y> jassoc_c1_j A B C c ab @ x @ y
+
+-- other composite
+
+jassoc_c2_r (A B C : U) : (bc : (Join B C)) -> Path (Join A (Join B C)) (jassoc_lr A B C (jassoc_rl_r A B C bc)) (joinr bc) = split
+  joinl b -> <_> joinr (joinl b)
+  joinr c -> <_> joinr (joinr c)
+  join b c @ x -> <_> joinr (join{Join B C} b c @ x)
+
+jassoc_c2_j (A B C : U) (a : A) : (bc : Join B C)
+         -> PathP (<x> Path (Join A (Join B C)) (jassoc_lr A B C (jassoc_rl_j A B C a bc @ x)) (join{Join A (Join B C)} a bc @ x))
+                (<_> joinl a)
+                (jassoc_c2_r A B C bc) = undefined -- split
+  -- joinl b -> <x> <y> join{Join A (Join B C)} a (joinl b) @ x
+  -- joinr c -> <x> <y> join{Join A (Join B C)} a (joinr c) @ x
+  -- join b c @ z -> <x> <y> comp (<_> Join A (Join B C)) ((innerfront @ z @ x)) [(y=0) -> <y> collapse STUCK @ -y @ z @ x] where
+  --      FrontType : U = PathP (<x> Path (Join A (Join B C))
+  --                                  (joinl a)
+  --                                  (joinr (join{Join B C} b c @ x)))
+  --                          (<y> join {Join A (Join B C)} a (joinl b) @ y)
+  --                          (<y> join {Join A (Join B C)} a (joinr c) @ y)
+
+  --      front : FrontType = <x><y>(jassoc_lr A B C (jassoc_rl_j A B C a (join{Join B C} b c @ x)  @ y))
+  --      innerfront : FrontType = <x><y>(join{Join A (Join B C)} a (join{Join B C} b c @ x) @ y)
+
+  --      MiddleStepType : U = PathP (<x> Path (Join A (Join B C))
+  --                                       (join {Join A (Join B C)} a (joinl b) @ x)
+  --                                       (joinr (joinr c)))
+  --                               (<y> join {Join A (Join B C)} a (joinr c) @ y)
+  --                               (<y> (joinr (join{Join B C} b c @ y)))
+
+  --      rpath : Path U FrontType MiddleStepType =
+  --        rearrange_path (Join A (Join B C)) (joinl a) (joinr (joinl b)) (joinr (joinr c))
+  --                       (<x> joinr (join{Join B C} b c @ x))
+  --                       (<y> join {Join A (Join B C)} a (joinl b) @ y)
+  --                       (<y> join {Join A (Join B C)} a (joinr c) @ y)
+
+  --      collapse : Unit -> Path FrontType front innerfront = undefined -- split
+  --        -- tt -> transport_inv MiddleStepType FrontType (<x> rpath @ -x) innerfront
+
+jassoc_c2 (A B C : U) : (j : Join A (Join B C)) -> Path (Join A (Join B C)) (jassoc_lr A B C (jassoc_rl A B C j)) j = split
+    joinl a -> <_> joinl a
+    joinr bc -> jassoc_c2_r A B C bc
+    join a bc @ x -> <y> jassoc_c2_j A B C a bc @ x @ y
+
+Join_assoc_path (A B C : U) : Path U (Join A (Join B C)) (Join (Join A B) C) =
+  isoPath (Join A (Join B C)) (Join (Join A B) C) (jassoc_rl A B C) (jassoc_lr A B C) (jassoc_c1 A B C) (jassoc_c2 A B C)

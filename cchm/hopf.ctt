@@ -1,0 +1,18 @@
+module hopf where
+
+import susp
+import s1
+import join
+
+S2 : U = Susp S1
+
+hopf : S2 -> U = split
+  north -> S1
+  south -> S1
+  merid a @ x -> rotpath a @ x
+
+totalHopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
+  north -> \ (a : S1) -> joinl a
+  south -> \ (a : S1) -> joinr a
+  merid a @ x -> \(p : rotpath a @ x) -> ?
+

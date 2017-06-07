@@ -1,6 +1,7 @@
 module s1 where
-  
+
 import prelude
+import equiv
 import pointedtypes
 
 data S1 = base
@@ -34,31 +35,40 @@ loopS1_3 : Path S1 base base = compS1 loopS1_2 loopS1
 -- test23 : PathP (<s> Path S1 (loopS1_3 @ s) (loopS1_3 @ s)) loopS1_2 loopS1_2 = <x> <y> rot (loopS1_3 @ x) (loopS1_2 @ y)
 -- test23_diag : Path S1 base base = <x> test23 @ x @ x
 
--- at this point we have an hspace, so we could use the general proof that rot x and (\ x -> rot x y) 
+-- at this point we have an hspace, so we could use the general proof that rot x and (\ x -> rot x y)
 -- are equivalences.  however, it's simpler to inline the connectedness argument for this case
 
-rotIsEquiv_loop : PathP (<x> IsEquiv S1 S1 (rot (loopS1 @ x))) (idfun_IsEquiv S1) (idfun_IsEquiv S1) = ?
-  -- <x> use_IsEquiv_level_het S1 S1 (\ (x : S1) -> x) (\ (x : S1) -> x) (<x> rot (loop{S1} @ x)) (idfun_IsEquiv S1) (idfun_IsEquiv S1) @ x 
+rotIsEquiv_loop : PathP (<x> IsEquiv S1 S1 (rot (loopS1 @ x))) (lemSinglContr S1) (lemSinglContr S1) =
+  lemPropF
+    S1
+    (\(a : S1) -> IsEquiv S1 S1 (rot a))
+    (\(a : S1) -> propIsEquiv S1 S1 (rot a))
+    base
+    base
+    loopS1
+    (lemSinglContr S1)
+    (lemSinglContr S1)
 
--- rotIsEquiv : (a : S1) -> IsEquiv S1 S1 (rot a) = split
---    base -> idfun_IsEquiv S1
---    loop @ x -> rotIsEquiv_loop @ x
 
--- rotpath (x : S1) : Path U S1 S1 = ua S1 S1 (rot x) (rotIsEquiv x)
+rotIsEquiv : (a : S1) -> IsEquiv S1 S1 (rot a) = split
+   base -> lemSinglContr S1
+   loop @ x -> rotIsEquiv_loop @ x
+
+rotpath (x : S1) : Path U S1 S1 = ua S1 S1 (rot x, rotIsEquiv x)
 
 -- -- too slow if we allow this to reduce always
--- rotright_IsEquiv_base : Unit -> IsEquiv S1 S1 (\ (a : S1) -> rot a base) = split 
+-- rotright_IsEquiv_base : Unit -> IsEquiv S1 S1 (\ (a : S1) -> rot a base) = split
 --   tt -> transport (<x> IsEquiv S1 S1 (\ (a : S1) -> rot_unit_r a @ -x)) (idfun_IsEquiv S1)
 
--- rotright_IsEquiv : (b : S1) -> IsEquiv S1 S1 (\ (a : S1) -> rot a b) = split 
+-- rotright_IsEquiv : (b : S1) -> IsEquiv S1 S1 (\ (a : S1) -> rot a b) = split
 --   base -> rotright_IsEquiv_base STUCK
---   loop@x -> use_IsEquiv_level_het S1 S1 
+--   loop@x -> use_IsEquiv_level_het S1 S1
 --             (\ (a : S1) -> rot a base) (\ (a : S1) -> rot a base)
 --             (<x> \ (a : S1) -> rot a (loop{S1} @ x))
 --             (rotright_IsEquiv_base STUCK)
---             (rotright_IsEquiv_base STUCK) @ x 
+--             (rotright_IsEquiv_base STUCK) @ x
 
--- rotpath_right (b : S1) : Path U S1 S1 = 
+-- rotpath_right (b : S1) : Path U S1 S1 =
 --   ua S1 S1 (\ (x : S1) -> rot x b) (rotright_IsEquiv b)
 
 -- -- evidence that a rotated by something is b
@@ -74,10 +84,10 @@ rotIsEquiv_loop : PathP (<x> IsEquiv S1 S1 (rot (loopS1 @ x))) (idfun_IsEquiv S1
 --           (Path S1 (transport (rotpath c) a) b)
 --           (Path S1 (transport (<x> rotpath_right a @ -x) b) c)
 --           (<x> hom_to_het_1_path S1 S1 (rotpath c) a b @ -x)
---           (compU (Path S1 (rot c a) b) 
+--           (compU (Path S1 (rot c a) b)
 --                  (Path S1 c (transport (<x> rotpath_right a @ -x) b))
 --                  (Path S1 (transport (<x> rotpath_right a @ -x) b) c)
---                  (move_transport_right_path S1 S1 (rotpath_right a) c b) 
+--                  (move_transport_right_path S1 S1 (rotpath_right a) c b)
 --                  (inv_path S1 c (transport (<x> rotpath_right a @ -x) b)))
 
 -- findRot (a : S1) (b : S1) : Rot a b = (Rot_level a b).1
