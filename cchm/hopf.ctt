@@ -5,6 +5,7 @@ import susp
 import s1
 import join
 import pointedtypes
+import helix
 
 
 S2 : U = Susp S1
@@ -44,10 +45,6 @@ lemPropFibS1 (P : S1 -> U) (pP : (x:S1) -> HProp (P x)) (bP: P base) : (x:S1) ->
  base -> bP
  loop @ i -> (lemPropF S1 P pP base base loopS1 bP bP) @ i
 
--- is there a direct way to show this? In the cubicaltt repo (and Brunerie's thesis), the proof of this uses the fact that
--- pi1S1 = Z
-setLoop : HSet (Path S1 base base) =
-  ?
 
 fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
   truncFibOmega
