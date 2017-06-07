@@ -15,21 +15,7 @@ compInv (A:U) (a:A) : (x:A) (p:Path A a x) -> Path (Path A x x) (<_>x) (compPath
  where rem : Path (Path A a a) (<_>a) (<i>comp (<_>A) a [(i=0) -> <_>a,(i=1) -> <_>a]) =
         <j i>comp (<_>A) a [(j=0) -> <_>a,(i=0) -> <_>a,(i=1) -> <_>a]
 
-compInvS1 : Path OmegaS1 (refl S1 base) (compS1 invLoop loopS1) = compInv S1 base base loopS1
-
-compInv (A:U) (a b:A) (q:Path A a b) : (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i)) =
- J A b (\ (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i))) rem
- where rem : Path (Path A a b) q
-                           (<i>comp (<_>A) (comp (<_>A) (q@i) [(i=0) -> <_>a,(i=1) -> <_>b]) [(i=0) -> <_>a,(i=1) -> <_>b]) =
-          <j i>comp (<_>A) (comp (<_>A) (q@i) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]
-
--- constant transport
-
-transC (A:U) (a:A) : A = comp (<_>A) a []
-
--- it is equal to the identity function
-
-lemTransC (A:U) (a:A) : Path A (transC A a) a = <i>comp (<_>A) a [(i=1) -> <_>a]
+compInvS1 : Path OmegaS1 (<_> base) (compS1 invLoop loopS1) = compInv S1 base base loopS1
 
 lemFib1 (A:U) (F G : A -> U) (a:A) (fa : F a -> G a) :
    (x:A) (p : Path A a x) -> (fx : F x -> G x) ->
@@ -39,15 +25,17 @@ lemFib1 (A:U) (F G : A -> U) (a:A) (fa : F a -> G a) :
      Path U (Path (F a -> G x) (\ (u:F a) -> subst A G a x p (fa u)) (\ (u:F a) -> fx (subst A F a x p u)))
           (PathP (<i>F (p@i) -> G (p@i)) fa fx)) rem
  where
-   rem (ga : F a -> G a) : Path U (Path (F a -> G a) (\ (u:F a) -> transC (G a) (fa u)) (\ (u:F a) -> ga (transC (F a) u)))
+   rem (ga : F a -> G a) : Path U (Path (F a -> G a) (\ (u:F a) -> comp (<_> G a) (fa u) []) (\ (u:F a) -> ga (comp (<_> F a) u [])))
                                 (Path (F a -> G a) fa ga) =
-    <j>Path (F a -> G a) (\ (u:F a) -> lemTransC (G a) (fa u)@j) (\ (u : F a) -> ga (lemTransC (F a) u@j))
+    <j>Path (F a -> G a) (\ (u:F a) -> fill (<_> G a) (fa u) [] @ -j) (\ (u : F a) -> ga (fill (<_> F a) u [] @ -j))
 
 -- special case
 
 corFib1 (A:U) (F G : A -> U) (a:A) (fa ga : F a -> G a) (p:Path A a a)
   (h : (u:F a) -> Path (G a) (subst A G a a p (fa u)) (ga (subst A F a a p u))) : PathP (<i>F (p@i) -> G (p@i)) fa ga =
  comp (lemFib1 A F G a fa a p ga) (<i>\ (u:F a) -> h u@i) []
+
+
 
 
 compPathL (A:U) (a b:A) (p : Path A a b) : Path (Path A a b) p (compPath A a b b p (<_>b)) =
@@ -58,7 +46,7 @@ lemFib2 (A:U) (F:A->U) (a b:A) (p:Path A a b) (u:F a) :
  J A b (\ (c:A) (q:Path A b c) -> Path (F c) (subst A F b c q (subst A F a b p u)) (subst A F a c (compPath A a b c p q) u))
    rem
   where
-   rem1 : Path (F b) (subst A F a b p u) (subst A F b b (<_>b) (subst A F a b p u)) =  <i>lemTransC (F b) (subst A F a b p u)@-i
+   rem1 : Path (F b) (subst A F a b p u) (subst A F b b (<_>b) (subst A F a b p u)) = fill (<_>F b) (subst A F a b p u) []
    rem2 : Path (F b) (subst A F a b p u) (subst A F a b (compPath A a b b p (<_>b)) u) =
       <i>subst A F a b (compPathL A a b p@i) u
    rem : Path (F b) (subst A F b b (<_>b) (subst A F a b p u)) (subst A F a b (compPath A a b b p (<_>b)) u) =
