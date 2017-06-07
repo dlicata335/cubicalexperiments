@@ -426,45 +426,6 @@ Pi_level_prop (A : U) (B : A -> U) (h : (x : A) -> HProp (B x))
 
 
 
--- ----------------------------------------------------------------------
--- basic types
-
-data Unit = tt
-
--- for controling reduction
-STUCK : Unit = ?
-NONSTUCK : Unit = tt
-
-Contractible_level (A : U) : HProp (Contractible A) =
-  \ (a : Contractible A) (b : Contractible A) -> eq a.1 a.2 b.1 b.2 where
-  square (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) (a : A) : Unit -> PathP (<x> Path A (eq1 c2 @ x) a) (eq1 a) (eq2 a) = split tt -> ?
---         <x><y> eq1 (eq1 c2 @ x) @ y
-
-  eq (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) :
-        Path (Contractible A) (c1 , eq1) (c2, eq2) =
-        <x> (eq1 c2 @ x , \ (a : A) -> <y> square c1 eq1 c2 eq2 a STUCK @ x @ y)
-
-
-data Void =
-
-abort (A : U) : Void -> A = split{}
-
-Unit_level : HProp Unit = rem
-  where rem1 : (x:Unit) -> Path Unit x tt = split tt -> refl Unit tt
-        rem (x:Unit) : (y:Unit) -> Path Unit x y = split tt -> rem1 x
-
-Void_level : HProp Void = \ (x y:Void) -> abort (Path Void x y) x
-
-data Either (A B : U) = inl (a : A)
-                      | inr (b : B)
-
-Times (A B : U) : U = (_ : A) * B
-
--- Times_level (A B :U) (pA: prop A) (pB: A -> prop B) : prop (and A B) =
---  \ (u v:and A B) -> <i>((pA u.1 v.1)@i, (pB u.1 u.2 v.2)@i)
-
-data Bool = true | false
-
 ----------- subst and funDepTr -----------
 
 subst (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a0) : P a1 = comp (<x> P (p @ x)) b []
