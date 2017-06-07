@@ -1,0 +1,15 @@
+module trunc where
+
+import prelude
+
+data propTrunc (A : U)
+  = inc (a : A)
+  | inh (a b : propTrunc A) <i> [(i=0) -> a, (i=1) -> b]
+
+data setTrunc (A : U)
+  = inc (a : A)
+  | inh (a b : setTrunc A) (p q : Path (setTrunc A) a b)
+    <i j> [ (i = 0) -> p @ j
+          , (i = 1) -> q @ j
+          , (j = 0) -> a
+          , (j = 1) -> b ]
