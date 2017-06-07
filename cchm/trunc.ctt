@@ -1,10 +1,14 @@
 module trunc where
 
 import prelude
+import spheres
 
 data propTrunc (A : U)
   = inc (a : A)
   | inh (a b : propTrunc A) <i> [(i=0) -> a, (i=1) -> b]
+
+propTruncIsProp (A : U) : HProp (propTrunc A) =
+  \(a b : propTrunc A) -> <i> inh {propTrunc A} a b @ i
 
 data setTrunc (A : U)
   = inc (a : A)
@@ -14,6 +18,39 @@ data setTrunc (A : U)
           , (j = 0) -> a
           , (j = 1) -> b ]
 
-data Trunc (A : U) = inc (A : U)
-                   | 
-  
+setTruncIsSet (A : U) : HSet (setTrunc A) =
+  \(a b : setTrunc A)(p q : Path (setTrunc A) a b)
+    -> <i j> inh {setTrunc A} a b p q @ i @ j
+
+data gTrunc (A : U)
+  = inc (a : A)
+  | squashC (a b : gTrunc A) (p q : Path (gTrunc A) a b)
+            (r s: Path (Path (gTrunc A) a b) p q) <i j k>
+       [ (i=0) -> r @ j @ k
+       , (i=1) -> s @ j @ k
+       , (j=0) -> p @ k
+       , (j=1) -> q @ k
+       , (k=0) -> a
+       , (k=1) -> b]
+
+gTruncIsOneType (A : U) : OneType (gTrunc A) =
+  \(a b : gTrunc A)
+   (p q : Path (gTrunc A) a b)
+   (r s : Path (Path (gTrunc A) a b) p q)
+   -> <i j k> squashC {gTrunc A} a b p q r s @ i @ j @ k
+
+-- General n-trunction
+-- This HIT currently does not work properly
+-- data Nat' = minusOne | suc (n : Nat')
+
+-- suc' : Nat' -> Nat = split
+--   minusOne -> zero
+--   suc n    -> suc (suc' n)
+
+-- data Trunc (A : U)(n : Nat')
+--   = inc (A : U)
+--   | hub (r : S (suc' n) -> Trunc A n)
+--   | spoke (r : S (suc' n) -> Trunc A n)(x : S (suc' n))
+--      <i> [ (i=0) -> r x, (i=1) -> hub r ]
+
+
