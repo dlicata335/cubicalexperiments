@@ -35,21 +35,23 @@ subst (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a0) : P a1 = co
 
 substInv (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a1) : P a0 = comp (<x> P (p @ -x)) b []
 
-truncFibOmega (B : PointedType) (P : B.1 -> U) (f : P (pt B)) (n : Nat) 
-  (tr:inhOrTrunc (P (pt B)) (suc n)) (p : (Omega B).1) : inhOrTrunc (fibOmega B P f p) n 
+funDepTr (A0 A1 :U) (p:Path U A0 A1) (u0:A0) (u1:A1) : Path U (PathP p u0 u1) (Path A1 (comp p u0 []) u1) =
+  <i>
+    comp
+      (<_> U)
+      (PathP p (fill (<_> A0) u0 [] @ i) u1)
+      [(i=1) -> <j> PathP (<k> p @ j\/k) (comp (<k> p @ j/\k) u0 []) u1,
+       (i=0) -> <_> PathP p u0 u1]
+
+
+
+truncFibOmega (B : PointedType) (P : B.1 -> U) (f : P (pt B)) (n : Nat)
+  (tr:inhOrTrunc (P (pt B)) (suc n)) (p : (Omega B).1) : inhOrTrunc (fibOmega B P f p) n
  = substInv U (\ (X:U) -> inhOrTrunc X n)
-    (PathP (<i> P(p @ i)) f f) 
+    (PathP (<i> P(p @ i)) f f)
     (Path (P (pt B)) (subst B.1 P (pt B) (pt B) p f) f)
-    (<i> PathP (<k> P (p @ (k /\ i)))  
-      (fill (<j> P (p @ j)) f [] @ i)  
-      f 
-    ) 
+    (funDepTr (P (pt B)) (P (pt B)) (<i>P (p@i)) f f)
     (tr (subst B.1 P (pt B) (pt B) p f) f)
-
--- PathP (<!0> U) (PathP (<!0> P (p @ !0)) f f) (PathP (<!0> P B.2) ? ?)
-
--- (funDepTr (P (pt B)) (P (pt B)) (<i>P (p@i)) f f)
-
 
 ---------------------------------
 
@@ -84,9 +86,8 @@ hopfThree : (itOmega three ptS2).1 -> U = itFibOmega three ptS2 hopf base
 ptJoin (pA:PointedType) (B:U) : PointedType = (Join pA.1 B, joinl (pt pA))
 
 
--- fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p = 
+-- fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
 --   truncFibOmega (itOmega two ptS2) hopfTwo (refl (Id S1 base base) (refl S1 base)) zero
 --     (truncFibOmega (Omega ptS2) hopfOne (refl S1 base) one
 --           (truncFibOmega ptS2 hopf base two isGroupoidS1 (refl S2 north))
 --         (refl (Omega ptS2).1 (pt (Omega ptS2)))) p
-
