@@ -21,6 +21,13 @@ compInv (A:U) (a:A) : (x:A) (p:Path A a x) -> Path (Path A x x) (<_>x) (compPath
  where rem : Path (Path A a a) (<_>a) (<i>comp (<_>A) a [(i=0) -> <_>a,(i=1) -> <_>a]) =
         <j i>comp (<_>A) a [(j=0) -> <_>a,(i=0) -> <_>a,(i=1) -> <_>a]
 
+lemCompInv2 (A:U) (a b:A) (q:Path A a b) : (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i)) =
+ J A b (\ (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i))) rem
+ where rem : Path (Path A a b) q
+                           (<i>comp (<_>A) (comp (<_>A) (q@i) [(i=0) -> <_>a,(i=1) -> <_>b]) [(i=0) -> <_>a,(i=1) -> <_>b]) =
+          <j i>comp (<_>A) (comp (<_>A) (q@i) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]
+
+
 compInvS1 : Path OmegaS1 (refl S1 base) (compS1 invLoop loopS1) = compInv S1 base base loopS1
 
 -- constant transport
@@ -105,9 +112,13 @@ lem1ItPos : (n:Nat) -> Path OmegaS1 (loopIt (sucZ (inr n))) (oneTurn ((loopIt (i
 
 test1ItNeg (n:Nat) : U = Path OmegaS1 (loopIt (sucZ (inl n))) (oneTurn ((loopIt (inl n))))
 
-lem1ItNeg : (n:Nat) -> Path OmegaS1  (loopIt (sucZ (inl n))) (oneTurn (loopIt (inl n))) = split
- zero -> compInv S1 base base loopS1
- suc p -> compInv S1 base base (loopIt (inl p)) base invLoop
+
+lem1ItNeg : (n:Nat) -> Path OmegaS1 (loopIt (sucZ (inl n))) (oneTurn (loopIt (inl n))) = split
+ zero -> compInvS1
+ suc p -> lemCompInv2 S1 base base (loopIt (inl p)) base invLoop
+
+
+
 
 lem1It : (n:Z) -> Path OmegaS1 (loopIt (sucZ n)) (oneTurn  (loopIt n)) = split
  inl n -> lem1ItNeg n
