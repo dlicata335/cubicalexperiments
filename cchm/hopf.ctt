@@ -7,51 +7,7 @@ import join
 import pointedtypes
 
 
----- Extra prereqs---------------------------------
-
 S2 : U = Susp S1
-
-
-Omega (Z : PointedType) : PointedType = (Path Z.1 (Z.2) (Z.2), <_> Z.2)
-
--- Iterated loop space
-itOmega : Nat -> PointedType -> PointedType = split
-  zero  -> \ (A:PointedType) -> A
-  suc n -> \(A:PointedType) -> itOmega n (Omega A)
-
-fibOmega (B : PointedType) (P : B.1 -> U) (f : P (B.2)) (p : (Omega B).1) : U =
- PathP (<i> P (p @ i)) f f
-
-itFibOmega : (n : Nat) (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> (itOmega n B).1 -> U
- = split
-  zero  -> \ (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> P
-  suc n -> \ (B : PointedType) (P : B.1 -> U) (f : P (B.2)) -> itFibOmega n (Omega B) (fibOmega B P f) (refl (P (B.2)) f)
-
-inhOrTrunc (A:U) : Nat -> U = split
-  zero  -> A
-  suc n -> (x y : A) -> inhOrTrunc (Path A x y) n
-
-subst (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a0) : P a1 = comp (<x> P (p @ x)) b []
-
-substInv (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a1) : P a0 = comp (<x> P (p @ -x)) b []
-
-truncFibOmega (B : PointedType) (P : B.1 -> U) (f : P (pt B)) (n : Nat) 
-  (tr:inhOrTrunc (P (pt B)) (suc n)) (p : (Omega B).1) : inhOrTrunc (fibOmega B P f p) n 
- = substInv U (\ (X:U) -> inhOrTrunc X n)
-    (PathP (<i> P(p @ i)) f f) 
-    (Path (P (pt B)) (subst B.1 P (pt B) (pt B) p f) f)
-    (<i> PathP (<k> P (p @ (k /\ i)))  
-      (fill (<j> P (p @ j)) f [] @ i)  
-      f 
-    ) 
-    (tr (subst B.1 P (pt B) (pt B) p f) f)
-
--- PathP (<!0> U) (PathP (<!0> P (p @ !0)) f f) (PathP (<!0> P B.2) ? ?)
-
--- (funDepTr (P (pt B)) (P (pt B)) (<i>P (p@i)) f f)
-
-
----------------------------------
 
 hopf : S2 -> U = split
   north -> S1
@@ -84,9 +40,42 @@ hopfThree : (itOmega three ptS2).1 -> U = itFibOmega three ptS2 hopf base
 ptJoin (pA:PointedType) (B:U) : PointedType = (Join pA.1 B, joinl (pt pA))
 
 
--- fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p = 
---   truncFibOmega (itOmega two ptS2) hopfTwo (refl (Id S1 base base) (refl S1 base)) zero
---     (truncFibOmega (Omega ptS2) hopfOne (refl S1 base) one
---           (truncFibOmega ptS2 hopf base two isGroupoidS1 (refl S2 north))
---         (refl (Omega ptS2).1 (pt (Omega ptS2)))) p
+lemPropFibS1 (P : S1 -> U) (pP : (x:S1) -> HProp (P x)) (bP: P base) : (x:S1) -> P x = split
+ base -> bP
+ loop @ i -> (lemPropF S1 P pP base base loopS1 bP bP) @ i
+
+-- is there a direct way to show this? In the cubicaltt repo (and Brunerie's thesis), the proof of this uses the fact that
+-- pi1S1 = Z
+setLoop : HSet (Path S1 base base) =
+  ?
+
+fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
+  truncFibOmega
+    (itOmega two ptS2)
+    hopfTwo
+    (<_> <_> base)
+    zero
+    (truncFibOmega
+      (Omega ptS2)
+      hopfOne
+      (<_> base)
+      one
+      (truncFibOmega ptS2 hopf base two isOneTypeS1 (<_> north))
+      (<_> pt (Omega ptS2)))
+    p
+  where
+    isOneTypeS1 : OneType S1 =
+      lemPropFibS1
+        (\(x:S1) -> (y:S1) -> HSet (Path S1 x y))
+        (\(x:S1) ->
+          Pi_level_prop
+            S1
+            (\(y:S1) -> HSet (Path S1 x y))
+            (\(y:S1) -> setIsProp (Path S1 x y)))
+        (lemPropFibS1
+          (\ (y:S1) -> HSet (Path S1 base y))
+          (\ (y:S1) -> setIsProp (Path S1 base y))
+          setLoop)
+
+
 

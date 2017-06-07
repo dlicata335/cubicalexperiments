@@ -65,6 +65,21 @@ Contractible_level (A : U) : HProp (Contractible A) =
         Path (Contractible A) (c1 , eq1) (c2, eq2) =
         <x> (eq1 c2 @ x , \ (a : A) -> <y> square c1 eq1 c2 eq2 a STUCK @ x @ y)
 
+propSet (A : U) (h : HProp A) : HSet A =
+ \(a b : A) (p q : Path A a b) ->
+   <j i> comp (<k>A) a [ (i=0) -> h a a
+                       , (i=1) -> h a b
+                       , (j=0) -> h a (p @ i)
+                       , (j=1) -> h a (q @ i)]
+
+propIsProp (A : U) : HProp (HProp A) =
+  \(f g : HProp A) -> <i> \(a b : A) ->
+    propSet A f a b (f a b) (g a b) @ i
+
+setIsProp (A : U) : HProp (HSet A) =
+ \(f g : HSet A) -> <i> \(a b :A) ->
+   propIsProp (Path A a b) (f a b) (g a b) @ i
+
 
 data Void =
 
@@ -447,3 +462,17 @@ Times (A B : U) : U = (_ : A) * B
 --  \ (u v:and A B) -> <i>((pA u.1 v.1)@i, (pB u.1 u.2 v.2)@i)
 
 data Bool = true | false
+
+----------- subst and funDepTr -----------
+
+subst (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a0) : P a1 = comp (<x> P (p @ x)) b []
+
+substInv (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a1) : P a0 = comp (<x> P (p @ -x)) b []
+
+funDepTr (A0 A1 :U) (p:Path U A0 A1) (u0:A0) (u1:A1) : Path U (PathP p u0 u1) (Path A1 (comp p u0 []) u1) =
+  <i>
+    comp
+      (<_> U)
+      (PathP p (fill (<_> A0) u0 [] @ i) u1)
+      [(i=1) -> <j> PathP (<k> p @ j\/k) (comp (<k> p @ j/\k) u0 []) u1,
+       (i=0) -> <_> PathP p u0 u1]
