@@ -27,9 +27,9 @@ OneType (A : U) : U = (a b : A) -> HSet (Path A a b)
 -- Sigma types
 
 
-lemPropF (A : U) (P : A -> U) (pP : (x : A) -> HProp (P x)) (a0 a1 :A)
-         (p : Path A a0 a1) (b0 : P a0) (b1 : P a1) : PathP (<i>P (p@i)) b0 b1 =
- <i>pP (p@i) (comp (<j>P (p@i/\j)) b0 [(i=0) -> <_>b0]) (comp (<j>P (p@i\/-j)) b1 [(i=1) -> <_>b1])@i
+-- lemPropF (A : U) (P : A -> U) (pP : (x : A) -> HProp (P x)) (a0 a1 :A)
+--          (p : Path A a0 a1) (b0 : P a0) (b1 : P a1) : PathP (<i>P (p@i)) b0 b1 =
+--  <i>pP (p@i) (comp (<j>P (p@i/\j)) b0 [(i=0) -> <_>b0]) (comp (<j>P (p@i\/-j)) b1 [(i=1) -> <_>b1])@i
 
 -- other proof
 -- lemPropF (A : U) (P : A -> U) (pP : (x : A) -> HProp (P x)) (a :A) :
@@ -39,11 +39,44 @@ lemPropF (A : U) (P : A -> U) (pP : (x : A) -> HProp (P x)) (a0 a1 :A)
 --   rem
 -- where rem : (b0 b1:P a) -> Path (P a) b0 b1 = pP a
 
+-- lemSig (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x))
+--        (u v : (x:A) * B x) (p : Path A u.1 v.1) :
+--        Path ((x:A) * B x) u v =
+--   <i> (p@i,(lemPropF A B pB u.1 v.1 p u.2 v.2)@i)
+
+
+--
+-- lemSig computes the missing side of the following
+-- square in B over p
+--
+--                 fill u.2
+--     {      u.2 ----------> comp u.2                }
+--     {       |                 |                    }
+--   B {  refl |                 | pB (comp u.2) v.2  }
+--     {       |                 |                    }
+--     {       v                 v                    }
+--     {      u.2               v.2                   }
+--
+--                     p
+--   A {      u.1 ------------> u.2                   }
+--
+lemPropF (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x)) (a0 a1 :A)
+         (p : Path A a0 a1) (b0 : B a0) (b1 : B a1) : PathP (<i>B (p@i)) b0 b1 =
+  <i> comp (<_> B (p @ i)) (filler @ i)
+         [ (i=0) -> <_> b0
+	 , (i=1) -> pB (p @ i) (filler @ 1) b1]
+  where
+    filler : PathP (<i> B (p @ i)) b0 (comp (<i> B (p @ i)) b0 [])
+      = fill (<i> B (p @ i)) b0 []
+
 lemSig (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x))
        (u v : (x:A) * B x) (p : Path A u.1 v.1) :
        Path ((x:A) * B x) u v =
-  <i> (p@i,(lemPropF A B pB u.1 v.1 p u.2 v.2)@i)
+  <i> (p @ i, lemPropF A B pB u.1 v.1 p u.2 v.2 @ i)
 
+lemSig' (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x))
+        (u v : (x:A) * B x) (p : Path ((x:A) * B x) u v) :
+        Path A u.1 v.1 = <i> (p @ i).1
 
 -- ----------------------------------------------------------------------
 -- basic types
