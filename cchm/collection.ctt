@@ -16,12 +16,12 @@ eqEquivFst (A B : U) : (t u : equiv A B) ->
      Path U (Path (equiv A B) t u) (Path (A -> B) t.1 u.1)
    = lemSigProp (A -> B) (IsEquiv A B) (propIsEquiv A B)
 
-groupoidFun (A B : U) (gB:OneType B) : OneType (A -> B) =
-  groupoidPi A (\(x : A) -> B) (\(x : A) -> gB)
+oneTypeFun (A B : U) (gB:OneType B) : OneType (A -> B) =
+  oneTypePi A (\(x : A) -> B) (\(x : A) -> gB)
 
 lem5 (A B : U) (gB:OneType B) (t u:equiv A B) : HSet (Path (equiv A B) t u)
  = substInv U HSet (Path (equiv A B) t u) (Path (A -> B) t.1 u.1)
-            (eqEquivFst A B t u) (groupoidFun A B gB t.1 u.1)
+            (eqEquivFst A B t u) (oneTypeFun A B gB t.1 u.1)
 
 propequiv (X Y : U) (H : HProp Y) (f g : equiv X Y) : Path (equiv X Y) f g =
   equivLemma X Y f g (<i> \(x : X) -> H (f.1 x) (g.1 x) @ i)
@@ -33,7 +33,7 @@ setPath (A B : U) (sB : HSet B) : HSet (Path U A B) =
     = substInv U HProp (Path (equiv A B) t u) (Path (A -> B) t.1 u.1)
             (eqEquivFst A B t u) (setFun A B sB t.1 u.1)
 
--- the collection of all HSets is a groupoid / 1-type
+-- the collection of all HSets is a 1-type
 HSETisOneType : OneType HSET = \(A B : HSET) ->
   let rem : HSet (Path U A.1 B.1) = setPath A.1 B.1 B.2
       rem1 : Path U (Path HSET A B) (Path U A.1 B.1) =

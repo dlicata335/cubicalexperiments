@@ -22,12 +22,15 @@ Contractible (A : U) : U = (a : A) * ((b : A) -> Path A a b)
 HProp (A : U) : U = (a b : A) -> Path A a b
 HSet (A : U) : U = (a b : A) -> HProp (Path A a b)
 OneType (A : U) : U = (a b : A) -> HSet (Path A a b)
+TwoType (A : U) : U = (a b : A) -> OneType (Path A a b)
 
 -- --------------------------------------------------------------------
 -- collections
 
 HPROP : U = (A : U) * HProp A
 HSET : U = (A : U) * HSet A
+ONETYPE : U = (A : U) * OneType A
+TWOTYPE : U = (A : U) * TwoType A
 
 -- --------------------------------------------------------------------
 -- Sigma types
@@ -580,4 +583,3 @@ lemInv (A:U) (a b:A) (p:Path A a b) : Path (Path A b b) (compPath A b a b (inv A
 
 compInvRight (A:U) (a b:A) (p:Path A a b) : Path (Path A a a) (compPath A a b a p (<i>p@-i)) (refl A a) =
   lemInv A b a (<x> p @ -x)
-

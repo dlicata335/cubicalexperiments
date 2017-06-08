@@ -1,0 +1,108 @@
+module truncHopf where
+
+import hopf
+import susp
+
+Trunc2S2 : U
+ = undefined
+
+inc : S2 -> Trunc2S2
+ = undefined
+
+
+
+mu2south : S2 -> Trunc2S2
+ = split
+     north -> inc south
+     south -> inc south
+     merid x @ i -> inc (comp (<_> S2) north [(i = 0) -> <j> merid{S2} base @ j,
+                                              (i = 1) -> <j> merid{S2} x    @ j])
+
+lemma (A : U) (a b : A) (p q : Path A a b) :
+           PathP (<i> Path A (q @ i) (q @ i))
+                 (<_> a)
+                 (<i> comp (<_> A) a [(i = 0) -> p, (i = 1) -> p])
+ = <i j> comp (<_> A) (comp (<_> A) (q @ i) [(i = 0) -> <_> a, (i = 1) -> <l> p @ -l])
+              [(i = 0) -> <_> a,
+               (i = 1) -> fill (<_> A) a [(j = 0) -> p, (j = 1) -> p],
+               (j = 0) -> <k> fill (<_> A) (q @ i) [(i = 0) -> <_> a, (i = 1) -> <l> p @ -l] @ -k,
+               (j = 1) -> <k> fill (<_> A) (q @ i) [(i = 0) -> <_> a, (i = 1) -> <l> p @ -l] @ -k]
+               
+mu2meridmeridbase (y : S1) : PathP (<i> Path Trunc2S2 (inc (merid{S2} y @ i)) (mu2south (merid{S2} y @ i)))
+                                   (<j> inc (merid{S2} base @ j))
+                                   (<j> inc (comp (<_> S2) north [(j = 0) -> <k> merid{S2} base @ k,
+                                                                  (j = 1) -> <k> merid{S2} base @ k]))
+ = <i j> comp (<_> Trunc2S2) (inc north)
+              [(i = 0) -> <k> inc (merid{S2} base @ (k /\ j)),
+               (i = 1) -> <k> inc (lemma S2 north south
+                                         (<j> merid{S2} base @ j)
+                                         (<j> merid{S2} y @ j)
+                                   @ k @ j),
+               (j = 0) -> <k> inc (merid{S2} y @ (k /\ i)),
+               (j = 1) -> <k> inc (fill (<_> S2) north [(i = 0) -> <l> merid{S2} base @ l,
+                                                        (i = 1) -> <l> merid{S2} y    @ l] @ k)]
+
+mu2meridmeridxbase (x : S1) : PathP (<i> Path Trunc2S2 (inc (merid{S2} base @ i))
+                                                       (mu2south (merid{S2} base @ i)))
+                                    (<i> inc (merid{S2} x @ i))
+                                    (<i> inc (comp (<_> S2) north [(i = 0) -> <k> merid{S2} base @ k,
+                                                                   (i = 1) -> <k> merid{S2} x    @ k]))
+ = <j i> comp (<_> Trunc2S2) (inc north)
+              [(i = 0) -> <k> inc (merid{S2} base @ (k /\ j)),
+               (i = 1) -> <k> inc (lemma S2 north south
+                                         (<j> merid{S2} base @ j)
+                                         (<j> merid{S2} x @ j)
+                                   @ k @ j),
+               (j = 0) -> <k> inc (merid{S2} x @ (k /\ i)),
+               (j = 1) -> <k> inc (fill (<_> S2) north [(i = 0) -> <l> merid{S2} base @ l,
+                                                        (i = 1) -> <l> merid{S2} x    @ l] @ k)]
+
+-- test : Path (PathP (<i> Path Trunc2S2 (inc (merid{S2} base @ i)) (mu2south (merid{S2} base @ i)))
+--                                    (<j> inc (merid{S2} base @ j))
+--                                    (<j> inc (comp (<_> S2) north [(j = 0) -> <k> merid{S2} base @ k,
+--                                                                   (j = 1) -> <k> merid{S2} base @ k])))
+--             (mu2meridmeridbase base) (<i j> mu2meridmeridxbase base @ j @ i)
+--  = <_> (mu2meridmeridbase base)
+
+mu2meridmeridloopbase : PathP (<k> PathP (<i> Path Trunc2S2 (inc (merid{S2} base @ i))
+                                                                 (mu2south (merid{S2} base @ i)))
+                                         (<i> inc (merid{S2} (loop{S1} @ k) @ i))
+                                         (<i> inc (comp (<_> S2) north
+                                                        [(i = 0) -> <l> merid{S2} base @ l,
+                                                         (i = 1) -> <l> merid{S2} (loop{S1} @ k) @ l])))
+                              (mu2meridmeridbase base)
+                              (mu2meridmeridbase base)
+ = <k> mu2meridmeridxbase (loop{S1} @ k)
+
+mu2meridmeridloop : (y : S1) -> PathP (<k> PathP (<i> Path Trunc2S2 (inc (merid{S2} y @ i))
+                                                                    (mu2south (merid{S2} y @ i)))
+                                                 (<j> inc (merid{S2} (loop{S1} @ k) @ j))
+                                                 (<j> inc (comp (<_> S2) north
+                                                                [(j = 0) -> <l> merid{S2} base @ l,
+                                                                 (j = 1) -> <l> merid{S2} (loop{S1} @ k) @ l])))
+                                      (mu2meridmeridbase y)
+                                      (mu2meridmeridbase y)
+ = split
+     base -> mu2meridmeridloopbase
+     loop @ i -> ? -- mu2meridmeridlooploop @ i
+
+mu2meridmerid : (x : S1) (y : S1) -> PathP (<i> Path Trunc2S2 (inc (merid{S2} y @ i)) (mu2south (merid{S2} y @ i)))
+                                           (<j> inc (merid{S2} x @ j))
+                                           (<j> inc (comp (<_> S2) north [(j = 0) -> <k> merid{S2} base @ k,
+                                                                          (j = 1) -> <k> merid{S2} x    @ k]))
+ = split
+     base -> mu2meridmeridbase
+     loop @ i -> \ (y : S1) -> mu2meridmeridloop y @ i
+
+mu2merid (x : S1) : (y : S2) -> Path Trunc2S2 (inc y) (mu2south y)
+ = split
+     north -> <j> inc (merid{S2} x @ j)
+     south -> <j> inc (comp (<_> S2) north [(j = 0) -> <k> merid{S2} base @ k,
+                                            (j = 1) -> <k> merid{S2} x    @ k])
+     merid y @ i -> mu2meridmerid x y @ i
+
+mu2 : S2 -> S2 -> Trunc2S2
+ = split
+     north -> inc
+     south -> mu2south
+     merid x @ i -> \ (y : S2) -> mu2merid x y @ i
