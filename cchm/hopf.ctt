@@ -7,13 +7,15 @@ import join
 import pointedtypes
 -- import helix
 
+
+
 hopf : S2 -> U = split
   joinl a -> S1
   joinr a -> S1
   join a b @ x -> aux a -- rotpath a @ x
     where
       aux : Bool -> U = split
-        true -> ? -- rotpath b @ x
+        true -> rotpath b @ x
         false -> S1
 
 
@@ -100,4 +102,5 @@ hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
 
 e2' (p : (itOmega two ptS2).1) : OmegaS1
  = comp (<i> fibOmega ptS2 hopf base (p @ i)) (<_> base) []
+
 -}

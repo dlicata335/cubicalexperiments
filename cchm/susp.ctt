@@ -24,6 +24,8 @@ S1 : U = Susp Bool
 S2 : U = Susp S1
 S3 : U = Susp S2
 
+-- base : S1 = joinl true
+
 OmegaS1 : U = Path S1 (joinl true) (joinl true)
 
 loop : OmegaS1 =
@@ -38,29 +40,58 @@ loop : OmegaS1 =
      ]
 
 
-ptS3 : PointedType = (S3, joinl true)
-ptS2 : PointedType = (S2, joinl true)
-ptS1 : PointedType = (S1, joinl true)
+plTF : Path S1 (joinl true) (joinl false) =  
+  <i> comp (<_> S1) (join {S1} true false @ i)
+       [ (i = 0) -> <_> joinl true
+       , (i = 1) -> <z> join{S1} false false @ -z
+       ] 
+ 
 
 
-mapJoin (A B C D : U) (f : A -> C) (g : B -> D) : Join A B -> Join C D =  split
-  joinl a -> joinl (f a)
-  joinr b -> joinr  (g b)
-  join a b @i -> join {Join C D} (f a) (g b)@i
+-- prTF : Path S1 (joinr true) (joinr false) = undefined
+
+s1Elim (P : S1 -> U) (b : P (joinl true)) (p : PathP (<i> P (loop @ i)) b b) : (x : S1) -> (P x) = split
+  joinl a -> aux1 a
+    where
+      aux1 : (a : Bool) -> P (joinl a) = split
+        true -> b 
+	false -> comp (<x> P (plTF @ x)) b []
+  joinr a -> aux2 a
+    where
+      aux2 : (a : Bool) -> P (joinr a) = split
+        true ->  comp (<x> P ((join{S1} true true) @ x)) b []
+	false -> comp (<x> P ((join{S1} true false) @ x)) b []
+  join a0 a1 @ i -> aux3 a0 a1 
+    where
+      aux3 : (a0 a1 : Bool) -> P (join{S1} a0 a1 @ i) = split
 
 
---  Suspension and join with the booleans
-suspJoin (A : U) : Susp A -> Join Bool A = \(x : Susp A) -> x
-  -- split
-  -- (joinl true)   -> joinl true
-  -- (joinl false)   -> joinl false
-  -- merid a @ i -> compPath (Join Bool A) (joinl true) (joinr a) (joinl false)
-  --                      (<i> join {Join Bool A} true a @ i)
-  --                      (<i> (join {Join Bool A} false a) @-i)
-  --                   @ i
+  
 
-merid (A : U) (a : A) : (Path (Susp A) (joinl true) (joinl false)) =
-  <i> compPath (Join Bool A) (joinl true) (joinr a) (joinl false)
-                       (<i> join {Susp A} true a @ i)
-                       (<i> (join {Susp A} false a) @-i)
-                       @ i
+
+-- ptS3 : PointedType = (S3, joinl true)
+-- ptS2 : PointedType = (S2, joinl true)
+-- ptS1 : PointedType = (S1, joinl true)
+
+
+-- mapJoin (A B C D : U) (f : A -> C) (g : B -> D) : Join A B -> Join C D =  split
+--   joinl a -> joinl (f a)
+--   joinr b -> joinr  (g b)
+--   join a b @i -> join {Join C D} (f a) (g b)@i
+
+
+-- --  Suspension and join with the booleans
+-- suspJoin (A : U) : Susp A -> Join Bool A = \(x : Susp A) -> x
+--   -- split
+--   -- (joinl true)   -> joinl true
+--   -- (joinl false)   -> joinl false
+--   -- merid a @ i -> compPath (Join Bool A) (joinl true) (joinr a) (joinl false)
+--   --                      (<i> join {Join Bool A} true a @ i)
+--   --                      (<i> (join {Join Bool A} false a) @-i)
+--   --                   @ i
+
+-- merid (A : U) (a : A) : (Path (Susp A) (joinl true) (joinl false)) =
+--   <i> compPath (Join Bool A) (joinl true) (joinr a) (joinl false)
+--                        (<i> join {Susp A} true a @ i)
+--                        (<i> (join {Susp A} false a) @-i)
+--                        @ i

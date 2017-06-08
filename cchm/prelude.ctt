@@ -583,3 +583,22 @@ lemInv (A:U) (a b:A) (p:Path A a b) : Path (Path A b b) (compPath A b a b (inv A
 
 compInvRight (A:U) (a b:A) (p:Path A a b) : Path (Path A a a) (compPath A a b a p (<i>p@-i)) (refl A a) =
   lemInv A b a (<x> p @ -x)
+
+
+---- Flow control ---
+
+if (A : U) : Bool -> A -> A -> A = split
+  true -> \(x y : A) -> x
+  false -> \(x y : A) -> y
+
+and : Bool -> Bool -> Bool = split
+  true -> \(x : Bool) -> x
+  false -> \(x : Bool) -> false
+
+or : Bool -> Bool -> Bool = split
+  true -> \(x : Bool) -> true
+  false -> \(x : Bool) -> x
+
+bNot : Bool -> Bool = split
+  true -> false
+  false -> true
