@@ -24,6 +24,12 @@ HSet (A : U) : U = (a b : A) -> HProp (Path A a b)
 OneType (A : U) : U = (a b : A) -> HSet (Path A a b)
 
 -- --------------------------------------------------------------------
+-- collections
+
+HPROP : U = (A : U) * HProp A
+HSET : U = (A : U) * HSet A
+
+-- --------------------------------------------------------------------
 -- Sigma types
 
 
@@ -478,7 +484,7 @@ decEqCong (A B : U) (f : A -> B) (g : B -> A) : dec A -> dec B = split
   inr h -> inr (\ (b:B) -> h (g b))
 
 
----- Path lemmas -- 
+---- Path lemmas --
 
 inv (A : U) (a b : A) (p : Path A a b) : Path A b a = <i> p @ -i
 
