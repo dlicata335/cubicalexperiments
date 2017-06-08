@@ -91,3 +91,7 @@ hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
     (Join S1 S1)
     totalHopfToJoin
     (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
+
+
+e2' (p : (itOmega two ptS2).1) : OmegaS1
+ = comp (<i> fibOmega ptS2 hopf base (p @ i)) (<_> base) []
