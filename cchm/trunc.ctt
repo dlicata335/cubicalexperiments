@@ -1,6 +1,5 @@
 module trunc where
 
-
 import prelude
 import spheres
 import collection
@@ -86,20 +85,16 @@ pathSpaceSetTrunc (A : U) (x y : A) :
       (gTruncIsOneType A (inc x) (inc y))
         (\ (p : Path A x y) -> <i> inc (p @ i))
 
-HPROPisSet : HSet HPROP = undefined
-
 setTruncPathSpace (A : U) (x y : A)
   (p : Path (setTrunc A) (inc x) (inc y)) : propTrunc (Path A x y) =
     comp (<i> (P (p @ i)).1) (inc (<_> x)) [] where
       P : setTrunc A -> HPROP =
         setTruncRec A HPROP HPROPisSet
-	  (\ (y : A) -> (propTrunc (Path A x y), propTruncIsProp (Path A x y)))
-
-HSetisOneType : OneType HSET = undefined
+          (\ (y : A) -> (propTrunc (Path A x y), propTruncIsProp (Path A x y)))
 
 gTruncPathSpace (A : U) (x y : A)
   (p : Path (gTrunc A) (inc x) (inc y)) : setTrunc (Path A x y) =
     comp (<i> (P (p @ i)).1) (inc (<_> x)) [] where
       P : gTrunc A -> HSET =
-       gTruncRec A HSET HSetisOneType
+       gTruncRec A HSET HSETisOneType
          (\ (y : A) -> (setTrunc (Path A x y), setTruncIsSet (Path A x y)))
