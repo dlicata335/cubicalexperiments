@@ -34,10 +34,10 @@ setTruncRec (A B : U)(sB : HSet B)(f : A -> B) : setTrunc A -> B =
     inh x y p q @ i j -> sB (rec x) (rec y) (<i> rec (p @ i)) (<i> rec (q @ i)) @ i @ j where
       rec : setTrunc A -> B = setTruncRec A B sB f
 
-data gTrunc (A : U)
+data oneTrunc (A : U)
   = inc (a : A)
-  | inh (a b : gTrunc A) (p q : Path (gTrunc A) a b)
-            (r s: Path (Path (gTrunc A) a b) p q) <i j k>
+  | inh (a b : oneTrunc A) (p q : Path (oneTrunc A) a b)
+            (r s: Path (Path (oneTrunc A) a b) p q) <i j k>
        [ (i=0) -> r @ j @ k
        , (i=1) -> s @ j @ k
        , (j=0) -> p @ k
@@ -45,19 +45,49 @@ data gTrunc (A : U)
        , (k=0) -> a
        , (k=1) -> b]
 
-gTruncIsOneType (A : U) : OneType (gTrunc A) =
-  \(a b : gTrunc A)
-   (p q : Path (gTrunc A) a b)
-   (r s : Path (Path (gTrunc A) a b) p q)
-   -> <i j k> inh {gTrunc A} a b p q r s @ i @ j @ k
+oneTruncIsOneType (A : U) : OneType (oneTrunc A) =
+  \(a b : oneTrunc A)
+   (p q : Path (oneTrunc A) a b)
+   (r s : Path (Path (oneTrunc A) a b) p q)
+   -> <i j k> inh {oneTrunc A} a b p q r s @ i @ j @ k
 
-gTruncRec (A B : U)(otB : OneType B)(f : A -> B) : gTrunc A -> B =
+oneTruncRec (A B : U)(otB : OneType B)(f : A -> B) : oneTrunc A -> B =
   split
     inc x -> f x
     inh x y p q r s @ i j k ->
       otB (rec x) (rec y) (<i> rec (p @ i)) (<i> rec (q @ i))
         (<i j> rec (r @ i @ j)) (<i j> rec (s @ i @ j)) @ i @ j @ k where
-          rec : gTrunc A -> B = gTruncRec A B otB f
+          rec : oneTrunc A -> B = oneTruncRec A B otB f
+
+data twoTrunc (A : U)
+  = inc (a : A)
+  | inh (a b : twoTrunc A) (p q : Path (twoTrunc A) a b)
+        (r s: Path (Path (twoTrunc A) a b) p q)
+        (u v : Path (Path (Path (twoTrunc A) a b) p q) r s) <i j k l>
+       [ (i=0) -> u @ j @ k @ l
+       , (i=1) -> v @ j @ k @ l
+       , (j=0) -> r @ k @ l
+       , (j=1) -> s @ k @ l
+       , (k=0) -> p @ l
+       , (k=1) -> q @ l
+       , (l=0) -> a
+       , (l=1) -> b ]
+
+twoTruncIsTwoType (A : U) : TwoType (twoTrunc A) =
+  \(a b : twoTrunc A)
+   (p q : Path (twoTrunc A) a b)
+   (r s : Path (Path (twoTrunc A) a b) p q)
+   (u v : Path (Path (Path (twoTrunc A) a b) p q) r s)
+   -> <i j k l> inh {twoTrunc A} a b p q r s u v @ i @ j @ k @ l
+
+twoTruncRec (A B : U)(twB : TwoType B)(f : A -> B) : twoTrunc A -> B =
+  split
+    inc x -> f x
+    inh x y p q r s u v @ i j k l ->
+      twB (rec x) (rec y) (<i> rec (p @ i)) (<i> rec (q @ i))
+        (<i j> rec (r @ i @ j)) (<i j> rec (s @ i @ j))
+        (<i j k> rec (u @ i @ j @ k)) (<i j k> rec (v @ i @ j @ k)) @ i @ j @ k @ l where
+          rec : twoTrunc A -> B = twoTruncRec A B twB f
 
 -- General n-trunction
 -- This HIT currently does not work properly
@@ -80,9 +110,9 @@ pathSpacePropTrunc (A : U) (x y : A) :
         (\ (p : Path A x y) -> <i> inc (p @ i))
 
 pathSpaceSetTrunc (A : U) (x y : A) :
-  setTrunc (Path A x y) -> Path (gTrunc A) (inc x) (inc y) =
-    setTruncRec (Path A x y) (Path (gTrunc A) (inc x) (inc y))
-      (gTruncIsOneType A (inc x) (inc y))
+  setTrunc (Path A x y) -> Path (oneTrunc A) (inc x) (inc y) =
+    setTruncRec (Path A x y) (Path (oneTrunc A) (inc x) (inc y))
+      (oneTruncIsOneType A (inc x) (inc y))
         (\ (p : Path A x y) -> <i> inc (p @ i))
 
 setTruncPathSpace (A : U) (x y : A)
@@ -92,9 +122,9 @@ setTruncPathSpace (A : U) (x y : A)
         setTruncRec A HPROP HPROPisSet
           (\ (y : A) -> (propTrunc (Path A x y), propTruncIsProp (Path A x y)))
 
-gTruncPathSpace (A : U) (x y : A)
-  (p : Path (gTrunc A) (inc x) (inc y)) : setTrunc (Path A x y) =
+oneTruncPathSpace (A : U) (x y : A)
+  (p : Path (oneTrunc A) (inc x) (inc y)) : setTrunc (Path A x y) =
     comp (<i> (P (p @ i)).1) (inc (<_> x)) [] where
-      P : gTrunc A -> HSET =
-       gTruncRec A HSET HSETisOneType
+      P : oneTrunc A -> HSET =
+       oneTruncRec A HSET HSETisOneType
          (\ (y : A) -> (setTrunc (Path A x y), setTruncIsSet (Path A x y)))
