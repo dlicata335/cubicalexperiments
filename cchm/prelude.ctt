@@ -32,6 +32,11 @@ HSET : U = (A : U) * HSet A
 -- --------------------------------------------------------------------
 -- Sigma types
 
+Sigma (A : U) (B : A -> U) : U = (x : A) * B x
+
+and (A : U) (B : U) : U = (x : A) * B
+
+Pi (A:U) (P:A->U) : U = (x:A) -> P x
 
 lemPropF (A : U) (P : A -> U) (pP : (x : A) -> HProp (P x)) (a0 a1 :A)
          (p : Path A a0 a1) (b0 : P a0) (b1 : P a1) : PathP (<i>P (p@i)) b0 b1 =
@@ -50,6 +55,10 @@ lemSig (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x))
        Path ((x:A) * B x) u v =
   <i> (p@i,(lemPropF A B pB u.1 v.1 p u.2 v.2)@i)
 
+propSig (A : U) (B : A -> U) (pA : HProp A)
+        (pB : (x : A) -> HProp (B x)) (t u : (x:A) * B x) :
+        Path ((x:A) * B x) t u =
+  lemSig A B pB t u (pA t.1 u.1)
 
 -- ----------------------------------------------------------------------
 -- basic types
@@ -82,10 +91,15 @@ propIsProp (A : U) : HProp (HProp A) =
   \(f g : HProp A) -> <i> \(a b : A) ->
     propSet A f a b (f a b) (g a b) @ i
 
+propIsSet (A : U) : HSet (HProp A) =
+  propSet (HProp A) (propIsProp A)
+
 setIsProp (A : U) : HProp (HSet A) =
  \(f g : HSet A) -> <i> \(a b :A) ->
    propIsProp (Path A a b) (f a b) (g a b) @ i
 
+setIsSet (A : U) : HSet (HSet A) =
+  propSet (HSet A) (setIsProp A)
 
 data Void =
 

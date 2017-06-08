@@ -182,4 +182,3 @@ inv_path (A : U) (a b : A) : Path U (Path A a b) (Path A b a) =
 ua (A B : U) (e : equiv A B) : Path U A B =
   <i> Glue B [ (i = 0) -> (A, e)
              , (i = 1) -> (B, idEquiv B) ]
-

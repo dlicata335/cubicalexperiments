@@ -1,0 +1,139 @@
+module univalence where
+
+import retract
+import equiv
+
+------------------------------------------------------------------------------
+-- Proof of univalence using unglue:
+
+retIsContr (A B : U) (f : A -> B) (g : B -> A)
+           (h : (x : A) -> Path A (g (f x)) x) (v : Contractible B)
+           : Contractible A = (g b,p)
+ where
+  b : B = v.1
+  q : (y:B) -> Path B b y = v.2
+  p (x:A) : Path A (g b) x =
+    <i> comp (<_> A) (g (q (f x) @ i)) [(i=0) -> <j>g b,(i=1) -> h x]
+
+sigIsContr (A : U) (B : A -> U) (u : Contractible A)
+  (q : (x : A) -> Contractible (B x)) : Contractible ((x:A) * B x) = ((a,g a),r)
+ where
+  a : A = u.1
+  p : (x:A) -> Path A a x = u.2
+  g (x:A) : B x = (q x).1
+  h (x:A) : (y:B x) -> Path (B x) (g x) y = (q x).2
+  C : U = (x:A) * B x
+  r (z:C) : Path C (a,g a) z =
+   <i>(p z.1@i,h (p z.1@i) (comp (<j>B (p z.1@i\/-j)) z.2 [(i=1)-><j>z.2])@i)
+
+isPathContr (A:U) (cA:Contractible A) (x y:A) : Contractible (Path A x y) =  (p0,q)
+ where
+  a : A = cA.1
+  f : (x:A) -> Path A a x = cA.2
+  p0 : Path A x y = <i>comp (<j>A) a [(i=0) -> f x,(i=1) -> f y]
+  q (p:Path A x y) : Path (Path A x y) p0 p =
+   <j i>comp (<k>A) a [(i=0) -> f x,(i=1) -> f y,
+                       (j=0) -> <k>comp (<l>A) a [(k=0) -> <l>a,(i=0) -> <l>f x@k/\l,(i=1) -> <l>f y@k/\l],
+                       (j=1) -> f (p@i)]
+
+isEquivContr (A B:U) (cA:Contractible A) (cB:Contractible B) (f:A->B) : IsEquiv A B f =
+ \ (y:B) -> sigIsContr A (\ (x:A) -> Path B y (f x)) cA (\ (x:A) -> isPathContr B cB y (f x))
+
+totalFun (A:U) (B C : A->U) (f : (x:A) -> B x -> C x) (w:Sigma A B) : Sigma A C =
+ (w.1,f (w.1) (w.2))
+
+funFib1  (A:U) (B C : A->U) (f : (x:A) -> B x -> C x) (x0:A) (z0:C x0) (u:fiber (B x0) (C x0) (f x0) z0) :
+ fiber (Sigma A B) (Sigma A C) (totalFun A B C f) (x0,z0) =  ((x0,u.1),<i>(x0,u.2@i))
+
+funFib2  (A:U) (B C : A->U) (f : (x:A) -> B x -> C x) (x0:A) (z0:C x0)
+         (w : fiber (Sigma A B) (Sigma A C) (totalFun A B C f) (x0,z0)) : fiber (B x0) (C x0) (f x0) z0 = (b0,s)
+ where
+  x : A = w.1.1
+  b : B x = w.1.2
+  p : Path A x0 x = <i>(w.2@i).1
+  q : PathP (<i>C (p@i)) z0 (f x b) = <i>(w.2@i).2
+  b0 : B x0 = comp (<i>B (p@-i)) b []
+  r : PathP (<i>B (p@-i)) b b0 = <i>comp (<j>B (p@-j\/-i)) b [(i=0) -> <k>b]
+  s : Path (C x0) z0 (f x0 b0) = <i>comp (<j>C (p@(i/\-j))) (q@i) [(i=0) -> <k>z0,(i=1) -> <k>f (p@-k) (r@k)]
+
+compFunFib (A:U) (B C : A->U) (f : (x:A) -> B x -> C x) (x0:A) (z0:C x0) (u:fiber (B x0) (C x0) (f x0) z0) :
+    fiber (B x0) (C x0) (f x0) z0 = funFib2 A B C f x0 z0 (funFib1 A B C f x0 z0 u)
+
+retFunFib (A:U) (B C : A->U) (f : (x:A) -> B x -> C x) (x0:A) (z0:C x0) (u:fiber (B x0) (C x0) (f x0) z0) :
+   Path (fiber (B x0) (C x0) (f x0) z0) (funFib2 A B C f x0 z0 (funFib1 A B C f x0 z0 u)) u =
+ <l> (comp (<i> B x0) u.1 [(l=1) -> <j>u.1],
+      <i> comp (<j> C x0) (u.2 @ i) [ (l=1) -> <j> u.2 @ i,
+                                      (i = 0) -> <j> z0,
+                                      (i = 1) -> <j> f x0 (comp (<k> B x0) u.1 [ (j = 0) -> <k> u.1, (l=1) -> <k>u.1 ]) ])
+
+equivFunFib (A:U) (B C : A->U) (f : (x:A) -> B x -> C x) (cB : Contractible (Sigma A B)) (cC : Contractible (Sigma A C)) (x:A)
+  : IsEquiv (B x) (C x) (f x) =
+ \ (z:C x) -> retIsContr (fiber (B x) (C x) (f x) z) (fiber (Sigma A B) (Sigma A C) (totalFun A B C f) (x,z))
+                         (funFib1 A B C f x z)
+                         (funFib2 A B C f x z)
+                         (retFunFib A B C f x z)
+                         (isEquivContr (Sigma A B) (Sigma A C) cB cC (totalFun A B C f) (x,z))
+
+
+-- Alternative formulation of univalence. This is Corollary 10 of the
+-- cubical type theory paper (the proof of theorem 9 is
+-- inlined). The formalization is due to Fabian Ruch.
+univalenceAlt (B : U) : Contractible ((X : U) * equiv X B) =
+ ((B,idEquiv B)
+ ,\(w : (X : U) * equiv X B)
+    -> <i> let GlueB : U = Glue B [(i=0) -> (B,idEquiv B), (i=1) -> w]
+               unglueB (g : GlueB) : B =
+                 unglue g [(i=0) -> (B,idEquiv B)
+                          ,(i=1) -> w]
+           in (GlueB
+              ,unglueB
+              ,\(b : B)
+               -> let center : fiber GlueB B unglueB b
+                             = (glue (comp (<j> B) b [(i=0) -> <j> b
+                                                     ,(i=1) -> (w.2.2 b).1.2])
+                                         [(i=0) -> b
+                                         ,(i=1) -> (w.2.2 b).1.1]
+                               ,fill (<j> B) b [(i=0) -> <j> b
+                                               ,(i=1) -> (w.2.2 b).1.2])
+                      contr (v : fiber GlueB B unglueB b)
+                            : Path (fiber GlueB B unglueB b) center v
+                            = <j> (glue (comp (<j> B) b [(i=0) -> <k> v.2 @ (j /\ k)
+                                                        ,(i=1) -> ((w.2.2 b).2 v @ j).2
+                                                        ,(j=0) -> fill (<j> B) b [(i=0) -> <j> b
+                                                                                     ,(i=1) -> (w.2.2 b).1.2]
+                                                        ,(j=1) -> v.2])
+                                            [(i=0) -> v.2 @ j
+                                            ,(i=1) -> ((w.2.2 b).2 v @ j).1]
+                                  ,fill (<j> B) b [(i=0) -> <l> v.2 @ (j /\ l)
+                                                  ,(i=1) -> ((w.2.2 b).2 v @ j).2
+                                                  ,(j=0) -> fill (<j> B) b [(i=0) -> <j> b
+                                                                           ,(i=1) -> (w.2.2 b).1.2]
+                                                  ,(j=1) -> v.2])
+                  in (center,contr)))
+
+contrSingl' (A : U) (a b : A) (p : Path A a b) :
+  Path ((x:A) * Path A x b) (b,refl A b) (a,p) = <i> (p @ -i,<j> p @ -i\/j)
+
+lemSinglContr' (A:U) (a:A) : Contractible ((x:A) * Path A x a) =
+ ((a,refl A a),\ (z:(x:A) * Path A x a) -> contrSingl' A z.1 a z.2)
+
+-- A version univalence. This is Corollary 11 of the cubical type
+-- theory paper.
+thmUniv (t : (A X : U) -> Path U X A -> equiv X A) (A : U) :
+  (X : U) -> IsEquiv (Path U X A) (equiv X A) (t A X) =
+    equivFunFib U (\(X : U) -> Path U X A) (\(X : U) -> equiv X A)
+      (t A) (lemSinglContr' U A) (univalenceAlt A)
+
+transEquiv' (A X : U) (p : Path U X A) : equiv X A =
+  substTrans U (\(Y : U) -> equiv Y A) A X (<i> p @ -i) (idEquiv A)
+
+-- The univalence axiom
+univalence (A X : U) : IsEquiv (Path U X A) (equiv X A) (transEquiv' A X) =
+  thmUniv transEquiv' A X
+
+-- The standard formulation of univalence whose normal can be computed:
+corrUniv (A B : U) : Path U (Path U A B) (equiv A B) =
+ equivPath (Path U A B) (equiv A B) (transEquiv' B A) (univalence B A)
+
+corrUniv' (A B : U) : equiv (Path U A B) (equiv A B) =
+  (transEquiv' B A,univalence B A)

@@ -1,0 +1,54 @@
+-- Characterization of equality in pi types.
+module pi where
+
+import equiv
+
+              -----------------------------------
+              -- Example: Equality in pi types --
+              -----------------------------------
+
+idPi (A:U) (B:A->U) (f g : Pi A B) : Path U (Path (Pi A B) f g) ((x:A) -> Path (B x) (f x) (g x)) =
+ isoPath  (Path (Pi A B) f g) ((x:A) -> Path (B x) (f x) (g x)) F G S T
+ where T0 : U = Path (Pi A B) f g
+       T1 : U = (x:A) -> Path (B x) (f x) (g x)
+       F (p:T0) : T1 = \ (x:A) -> <i>p@i x
+       G (p:T1) : T0 = <i>\ (x:A) -> p x @ i
+       S (p:T1) : Path T1 (F (G p)) p = refl T1 p
+       T (p:T0) : Path T0 (G (F p)) p = refl T0 p
+
+setPi (A:U) (B:A -> U) (h:(x:A) -> HSet (B x)) (f g:Pi A B) : HProp (Path (Pi A B) f g) =
+ rem
+ where
+  T : U = (x:A) -> Path (B x) (f x) (g x)
+  rem1 : HProp T = \ (p q : T) -> <i> \ (x:A) -> h x (f x) (g x) (p x) (q x)@i
+
+  rem : HProp (Path (Pi A B) f g) =
+    subst U HProp T (Path (Pi A B) f g) (<i>idPi A B f g@-i) rem1
+
+groupoidPi (A:U) (B:A -> U) (h:(x:A) -> OneType (B x)) (f g:Pi A B) : HSet (Path (Pi A B) f g) =
+    subst U HSet  T  (Path (Pi A B) f g) (<i>idPi A B f g@-i) rem1
+ where
+  T : U = (x:A) -> Path (B x) (f x) (g x)
+  rem1 : HSet T =  setPi A (\ (x:A) -> Path (B x) (f x) (g x)) (\ (x:A) -> h x (f x) (g x))
+
+propPi (A : U) (B : A -> U) (h : (x : A) -> HProp (B x))
+       (f0 f1 : (x : A) -> B x) : Path ((x : A) -> B x) f0 f1
+  = <i> \ (x:A) -> (h x (f0 x) (f1 x)) @ i
+
+propPi2 (A : U) (B0 : A -> A -> U) (h0 : (x y : A) -> HProp (B0 x y))
+  : HProp ((x y : A) -> B0 x y)
+  = let
+    p0 (a : A) : HProp ((b : A) -> B0 a b)
+      = propPi A (B0 a) (h0 a)
+    B1 (a : A) : U
+      = (b : A) -> B0 a b
+  in propPi A B1 p0
+
+propPi3 (A : U) (B0 : A -> A -> A -> U) (h0 : (x y z : A) -> HProp (B0 x y z))
+  : HProp ((x y z : A) -> B0 x y z)
+  = let
+    p0 (a b : A) : HProp ((c : A) -> B0 a b c)
+      = propPi A (B0 a b) (h0 a b)
+    B1 (a b : A) : U
+      = (c : A) -> B0 a b c
+  in propPi2 A B1 p0
