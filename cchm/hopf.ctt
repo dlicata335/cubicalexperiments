@@ -15,7 +15,7 @@ hopf : S2 -> U = split
   south -> S1
   merid a @ x -> rotpath a @ x
 
-totalHopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
+hopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
   north -> \ (a : S1) -> joinl (comp (<_> S1) a [])
   south -> \ (a : S1) -> joinr (comp (<_> S1) a [])
   merid a @ x ->
@@ -25,6 +25,8 @@ totalHopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
        (comp (<y> rotpath a @ y \/ x) p [])
        @ x
 
+totalHopfToJoin (e : (a : S2) * hopf a) : Join S1 S1 =
+  hopfToJoin e.1 e.2
 
 S3 : U = Susp S2
 ptS3 : PointedType = (S3, north)
@@ -76,7 +78,17 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
 
 
 -- The map h from 9.3
-hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 = 
-  itMapOmegaRefl three ( (x :S2) * (hopf x), (north,base)) (Join S1 S1) totalHopfToJoin
+
+-- What is commened out below does not typecheck, because
+-- base != comp (<_> S1) base []
+hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
+  ?
+{-
+  itMapOmegaRefl
+    three
+    ((a : S2) * hopf a, (north, base))
+    (Join S1 S1)
+    totalHopfToJoin
     (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
 
+-}
