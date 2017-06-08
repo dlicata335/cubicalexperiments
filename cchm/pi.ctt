@@ -25,7 +25,7 @@ setPi (A:U) (B:A -> U) (h:(x:A) -> HSet (B x)) (f g:Pi A B) : HProp (Path (Pi A 
   rem : HProp (Path (Pi A B) f g) =
     subst U HProp T (Path (Pi A B) f g) (<i>idPi A B f g@-i) rem1
 
-groupoidPi (A:U) (B:A -> U) (h:(x:A) -> OneType (B x)) (f g:Pi A B) : HSet (Path (Pi A B) f g) =
+oneTypePi (A:U) (B:A -> U) (h:(x:A) -> OneType (B x)) (f g:Pi A B) : HSet (Path (Pi A B) f g) =
     subst U HSet  T  (Path (Pi A B) f g) (<i>idPi A B f g@-i) rem1
  where
   T : U = (x:A) -> Path (B x) (f x) (g x)
