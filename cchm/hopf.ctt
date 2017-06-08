@@ -5,15 +5,20 @@ import susp
 import s1
 import join
 import pointedtypes
-import helix
-
-
-S2 : U = Susp S1
+-- import helix
 
 hopf : S2 -> U = split
-  north -> S1
-  south -> S1
-  merid a @ x -> rotpath a @ x
+  joinl a -> S1
+  joinr a -> S1
+  join a b @ x -> aux a -- rotpath a @ x
+    where
+      aux : Bool -> U = split
+        true -> ? -- rotpath b @ x
+        false -> S1
+
+
+
+{-
 
 hopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
   north -> \ (a : S1) -> joinl a
@@ -91,3 +96,4 @@ hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
     (Join S1 S1)
     totalHopfToJoin
     (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
+-}

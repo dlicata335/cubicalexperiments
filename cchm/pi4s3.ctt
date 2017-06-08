@@ -13,76 +13,32 @@ import joinassoc
 
 
 
-S1 : U = Susp Bool
-S2 : U = Susp S1
-S3 : U = Susp S2
-
-OmegaS1 : U = Path S1 (joinl true) (joinl true)
-
-loop : OmegaS1 = 
-  <i> comp (<_> S1) 
-        (comp (<_> S1) (joinl false) 
- 	      	[ (i = 0) -> <j> (join{S1} false true) @ j
-		, (i = 1) -> <j> (join{S1} false false) @ j
-		]
-	)
-     [ (i = 0) -> <j> (join{S1} true true) @ -j
-     , (i = 1) -> <j> (join{S1} true false) @ -j
-     ]
-     
-
-ptS3 : PointedType = (S3, joinl true)
-ptS2 : PointedType = (S2, joinl true)
-ptS1 : PointedType = (S1, joinl true)
 
 
-mapJoin (A B C D : U) (f : A -> C) (g : B -> D) : Join A B -> Join C D =  split
-  joinl a -> joinl (f a)
-  joinr b -> joinr  (g b)
-  join a b @i -> join {Join C D} (f a) (g b)@i
-
-
---  Suspension and join with the booleans
-suspJoin (A : U) : Susp A -> Join Bool A = \(x : Susp A) -> x
-  -- split
-  -- (joinl true)   -> joinl true
-  -- (joinl false)   -> joinl false
-  -- merid a @ i -> compPath (Join Bool A) (joinl true) (joinr a) (joinl false)
-  --                      (<i> join {Join Bool A} true a @ i)
-  --                      (<i> (join {Join Bool A} false a) @-i) 
-  -- 		       @ i
-
-merid (A : U) (a : A) : (Path (Susp A) (joinl true) (joinl false)) =
-  <i> compPath (Join Bool A) (joinl true) (joinr a) (joinl false)
-                       (<i> join {Susp A} true a @ i)
-                       (<i> (join {Susp A} false a) @-i) 
-  		       @ i
-
-
---TEST -- 
--- p : Path (Join Bool S2) (joinl true) (joinl false) = 
+--TEST --
+-- p : Path (Join Bool S2) (joinl true) (joinl false) =
 --   <i> suspJoin S2 (merid {S3} (joinl true) @ i)
 
 
--- p2 : Path (Join Bool S2) (joinl true) (joinl false) = 
+-- p2 : Path (Join Bool S2) (joinl true) (joinl false) =
 --   <i> (compPath (Join Bool S2) (joinl true) (joinr (joinl true)) (joinl false)
 --                        (<i> join {Join Bool S2} true (joinl true) @ i)
---                        (<i> (join {Join Bool S2} false (joinl true)) @-i) 
--- 		       @ i)
+--                        (<i> (join {Join Bool S2} false (joinl true)) @-i)
+--                     @ i)
 
--- p3  : Path (Join Bool S2) (joinl true) (joinl false) = 
---     <i> (comp (<j>Join Bool S2) (join {Join Bool S2} true (joinl true) @ i) 
---     	      [ (i = 1) -> (<k> (join {Join Bool S2} false (joinl true)) @-k)
--- 	      , (i=0) -> <j> (joinl true) ])
+-- p3  : Path (Join Bool S2) (joinl true) (joinl false) =
+--     <i> (comp (<j>Join Bool S2) (join {Join Bool S2} true (joinl true) @ i)
+--            [ (i = 1) -> (<k> (join {Join Bool S2} false (joinl true)) @-k)
+--            , (i=0) -> <j> (joinl true) ])
 
--- t1 : Path (Join Bool S2) (joinl true) (joinr (joinl true))  = 
+-- t1 : Path (Join Bool S2) (joinl true) (joinr (joinl true))  =
 --      <i> join {Join Bool S2} true (joinl true) @ i
 
 
 ----END TEST---
 
 case1 (A : U) : Bool -> Susp A = split
-  true ->  (joinl true) 
+  true ->  (joinl true)
   false -> (joinl false)
 
 
@@ -108,7 +64,7 @@ bjbToS1Inv (x : S1) : Join Bool Bool = suspJoin Bool (x)
 --   (joinl true) -> ?
 --   (joinl false) -> ?
 --   merid
-  
+
 -- The map e from 7.3
 s3ToS1JoinS1 (x:S3) : Join S1 S1 = (jassoc_rl Bool Bool S1 x)
 
@@ -130,9 +86,9 @@ ptAlpha : PointedMap (ptJoin ptS1 S1) ptS2 = (alpha, refl S2 (joinl true))
 
 ptSusp (A : U) : PointedType = (Susp A, (joinl true))
 
-sigma (A : PointedType) : PointedMap A (Omega (ptSusp A.1))= 
+sigma (A : PointedType) : PointedMap A (Omega (ptSusp A.1))=
  (s,s0)
-  where s (x:A.1) : Path (Susp A.1) (joinl true) (joinl true) 
+  where s (x:A.1) : Path (Susp A.1) (joinl true) (joinl true)
          = compPath (Susp A.1) (joinl true) (joinl false) (joinl true)
                   (merid A.1 x)
                   (<i>(merid A.1 (pt A))@-i)
@@ -144,7 +100,7 @@ sigma (A : PointedType) : PointedMap A (Omega (ptSusp A.1))=
 
 f1 : OmegaS1 -> (itOmega two ptS2).1 = (OmegaF ptS1 (Omega ptS2) (sigma ptS1)).1
 
-f2 : (itOmega two ptS2).1 -> (itOmega three ptS3).1 = 
+f2 : (itOmega two ptS2).1 -> (itOmega three ptS3).1 =
  (itMapOmega two ptS2 (Omega ptS3) (sigma ptS2)).1
 
 f3 : (itOmega three ptS3).1 -> (itOmega three (ptJoin ptS1 S1)).1
@@ -154,7 +110,7 @@ f3 : (itOmega three ptS3).1 -> (itOmega three (ptJoin ptS1 S1)).1
 f4 : (itOmega three (ptJoin ptS1 S1)).1 -> (itOmega three ptS2).1
  = itMapOmegaRefl three (ptJoin ptS1 S1) S2 ptAlpha.1
 
-f34 : (itOmega three ptS3).1 -> (itOmega three ptS2).1 = 
+f34 : (itOmega three ptS3).1 -> (itOmega three ptS2).1 =
   itMapOmegaRefl three ptS3 S2 (\(x : S3) -> ptAlpha.1 (s3ToS1JoinS1 x))
 
 -- f5 : (itOmega three ptS2).1 -> (itOmega three (ptJoin ptS1 S1)).1
@@ -178,8 +134,6 @@ test34 : (itOmega three ptS2).1 = f34 test0To2
 
 -- -- NOT SURE (takes a long time)
 -- test0To5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 test0To4
- 
+
 -- -- -- Test f5 on a generator given by the exchange law
 -- -- -- testf5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 genPi3S2
-
-
