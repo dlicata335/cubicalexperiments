@@ -1,7 +1,6 @@
 module trunc where
 
 import prelude
-import spheres
 import collection
 
 data propTrunc (A : U)

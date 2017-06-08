@@ -1,6 +1,5 @@
 module univalence where
 
-import retract
 import equiv
 
 ------------------------------------------------------------------------------
