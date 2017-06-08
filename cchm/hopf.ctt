@@ -16,14 +16,19 @@ hopf : S2 -> U = split
   merid a @ x -> rotpath a @ x
 
 hopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
-  north -> \ (a : S1) -> joinl (comp (<_> S1) a [])
-  south -> \ (a : S1) -> joinr (comp (<_> S1) a [])
+  north -> \ (a : S1) -> joinl a
+  south -> \ (a : S1) -> joinr a
   merid a @ x ->
-   \(p : rotpath a @ x) ->
-     join{Join S1 S1}
-       (comp (<y> rotpath a @ -y /\ x) p [])
-       (comp (<y> rotpath a @ y \/ x) p [])
-       @ x
+    \(p : rotpath a @ x) ->
+      comp
+        (<_> Join S1 S1)
+        (join{Join S1 S1}
+           (comp (<z> rotpath a @ -z /\ x) p [])
+           (comp (<z> rotpath a @ z \/ x) p [])
+           @ x)
+        [(x=0) -> <z> joinl (fill (<_> S1) p [] @ -z),
+         (x=1) -> <z> joinr (fill (<_> S1) p [] @ -z)]
+
 
 totalHopfToJoin (e : (a : S2) * hopf a) : Join S1 S1 =
   hopfToJoin e.1 e.2
@@ -45,7 +50,8 @@ ptJoin (pA:PointedType) (B:U) : PointedType = (Join pA.1 B, joinl (pt pA))
 
 lemPropFibS1 (P : S1 -> U) (pP : (x:S1) -> HProp (P x)) (bP: P base) : (x:S1) -> P x = split
  base -> bP
- loop @ i -> (lemPropF S1 P pP base base loopS1 bP bP) @ i
+ loop @ i -> lemPropF S1 P pP base base loopS1 bP bP @ i
+
 
 
 fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
@@ -79,39 +85,9 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
 
 -- The map h from 9.3
 hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
-  trans bad_type good_type path_fix bad_thing
-  where
-  bad_type : U =
-    Path
-      (Path
-        (Path (Join S1 S1) (joinl (comp (<_> S1) base [])) (joinl (comp (<_> S1) base [])))
-        (<_> joinl (comp (<_> S1) base []))
-        (<_> joinl (comp (<_> S1) base [])))
-      (<_ _> joinl (comp (<_> S1) base []))
-      (<_ _> joinl (comp (<_> S1) base []))
-
-  good_type : U = Path (Path (Path (Join S1 S1) (joinl base) (joinl base)) (<_> joinl base) (<_> joinl base)) (<!0 !0> joinl base) (<!0 !0> joinl base)
-
-  uncomp : Path S1 (comp (<_> S1) base []) base =
-    <x> fill (<_> S1) base [] @ -x
-
-  path_fix : Path U bad_type good_type =
-    <x> Path
-          (Path
-            (Path (Join S1 S1) (joinl (uncomp @ x)) (joinl (uncomp @ x)))
-            (<_> joinl (uncomp @ x))
-            (<_> joinl (uncomp @ x)))
-          (<_ _> joinl (uncomp @ x))
-          (<_ _> joinl (uncomp @ x))
-
-
-  bad_thing : bad_type
-    =
-      itMapOmegaRefl
-        three
-        ((a : S2) * hopf a, (north, base))
-        (Join S1 S1)
-        totalHopfToJoin
-        (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
-
-
+  itMapOmegaRefl
+    three
+    ((a : S2) * hopf a, (north, base))
+    (Join S1 S1)
+    totalHopfToJoin
+    (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
