@@ -1,0 +1,53 @@
+-- Either A B is discrete if A and B are
+module discor where
+
+import prelude
+
+inlNotinr (A B:U) (a:A) (b:B) (h: Path (Either A B) (inl a) (inr b)) : Void = 
+ subst (Either A B) T (inl a) (inr b) h tt
+ where
+  T : Either A B -> U = split
+       inl _ -> Unit
+       inr _ -> Void
+
+inrNotinl (A B:U) (a:A) (b:B) (h : PathP (<_> Either A B) (inr b) (inl a)) : Void = 
+ subst (Either A B) T (inr b) (inl a) h tt
+ where
+  T : Either A B -> U = split
+       inl _ -> Void
+       inr _ -> Unit
+
+injInl (A B :U) (x0 x1:A) (h : Path (Either A B) (inl x0) (inl x1)) : Path A x0 x1 = 
+ subst (Either A B) T (inl x0) (inl x1) h (refl A x0)
+ where
+   T : Either A B -> U = split
+         inl x -> Path A x0 x
+         inr _ -> Void
+
+injInr (A B :U) (x0 x1:B) (h: Path (Either A B) (inr x0) (inr x1)) : Path B x0 x1 = 
+ subst (Either A B) T (inr x0) (inr x1) h (refl B x0)
+ where
+   T : Either A B -> U = split
+         inl _ -> Void
+         inr x -> Path B x0 x
+
+
+-- If A and B are discrete then "A Either B" is discrete
+orDisc (A B : U) (dA : Discrete A) (dB : Discrete B) :
+  (z z1 : Either A B) -> dec (Path (Either A B) z z1) = split
+  inl a -> rem1
+      where 
+    	  rem1 : (z1:Either A B) -> dec (Path (Either A B) (inl a) z1) = split
+            inl a1 -> rem (dA a a1)
+               where rem : dec (Path A a a1) -> dec (Path (Either A B) (inl a) (inl a1)) = split
+                            inl p -> inl (<i> inl (p @ i))
+                            inr h -> inr (\ (p:Path (Either A B) (inl a) (inl a1)) -> h (injInl A B a a1 p))
+            inr b -> inr (inlNotinr A B a b)
+  inr b -> rem1
+   where rem1 : (z1:Either A B) -> dec (Path (Either A B) (inr b) z1) = split
+            inl a -> inr (inrNotinl A B a b)
+            inr b1 ->  rem (dB b b1)
+               where rem : dec (Path B b b1) -> dec (Path (Either A B) (inr b) (inr b1)) = split
+                            inl p -> inl (<i> inr (p @ i))
+                            inr h -> inr (\ (p:Path (Either A B) (inr b) (inr b1)) -> h (injInr A B b b1 p))
+

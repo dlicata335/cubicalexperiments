@@ -17,13 +17,24 @@ TimesP (A : PointedType) (B : PointedType) : PointedType = ((_ : A.1) * B.1, (A.
 
 pt (A : PointedType) : A.1 = A.2
 
-
-
+-- Simplified mapOmega when the function is pointed by reflexivity
+mapOmegaRefl (A : PointedType) (B : U) (h : A.1 -> B) (p: (Omega A).1) : (Omega (B, h (pt A))).1 =
+ <i>h (p@i)
 
 -- Iterated loop space
 itOmega : Nat -> PointedType -> PointedType = split
   zero  -> \ (A:PointedType) -> A
   suc n -> \(A:PointedType) -> itOmega n (Omega A)
+
+itMapOmega : (n : Nat) (A B : PointedType) (h : PointedMap A B) -> PointedMap (itOmega n A) (itOmega n B) = split
+  zero  -> \ (A B : PointedType) (h : PointedMap A B) -> h
+  suc n -> \ (A B : PointedType) (h : PointedMap A B) -> itMapOmega n (Omega A) (Omega B) (OmegaF A B h)
+
+itMapOmegaRefl : (n : Nat) (A : PointedType) (B : U) (h : A.1 -> B) -> (itOmega n A).1 -> (itOmega n (B, h (pt A))).1
+ = split
+  zero  -> \ (A : PointedType) (B : U) (h : A.1 -> B) -> h
+  suc n -> \  (A : PointedType) (B : U) (h : A.1 -> B) -> itMapOmegaRefl n (Omega A) (Omega (B, h (pt A))).1 (mapOmegaRefl A B h)
+
 
 fibOmega (B : PointedType) (P : B.1 -> U) (f : P (B.2)) (p : (Omega B).1) : U =
  PathP (<i> P (p @ i)) f f
@@ -45,3 +56,33 @@ truncFibOmega (B : PointedType) (P : B.1 -> U) (f : P (pt B)) (n : Nat)
     (Path (P (pt B)) (subst B.1 P (pt B) (pt B) p f) f)
     (funDepTr (P (pt B)) (P (pt B)) (<i>P (p@i)) f f)
     (tr (subst B.1 P (pt B) (pt B) p f) f)
+
+
+sig (A : U) (P : A -> U) : U = (x : A) * (P x)
+
+
+totalFibOmega (B : PointedType) (P : B.1 -> U) (f : P (pt B)) 
+  (p : sig (Omega B).1 (fibOmega B P f)) : (Omega (sig B.1 P, (pt B, f))).1
+ = <i>(p.1@i,p.2@i) -- pairPath B.1 P (pt B) (pt B) f f p.1 p.2
+
+
+
+itTotalFibOmega : (n : Nat) (B : PointedType) (P : B.1 -> U) (f : P (pt B)) (x:sig (itOmega n B).1 (itFibOmega n B P f)) 
+   -> (itOmega n (sig B.1 P, (pt B, f))).1
+ = split
+  zero  -> \ (B : PointedType) (P : B.1 -> U) (f : P (pt B)) (x:sig B.1 P) -> x
+  suc n -> \ (B : PointedType) (P : B.1 -> U) (f : P (pt B))
+             (x:sig (itOmega n (Omega B)).1 (itFibOmega n (Omega B) (fibOmega B P f) (refl (P (pt B)) f))) -> 
+   let
+    BOm : PointedType =  Omega B
+    POm : BOm.1 -> U = fibOmega B P f
+    fOm : Path (P (pt B)) f f = refl (P (pt B)) f
+    ih : ((x : (itOmega n BOm).1) * ((itFibOmega n BOm POm fOm) x)) ->
+         (itOmega n (sig BOm.1 POm, (pt BOm, fOm))).1
+      = itTotalFibOmega n (Omega B) (fibOmega B P f) (refl (P (pt B)) f)
+   in (itMapOmega n ((x : BOm.1) * (POm x), (pt BOm, fOm))
+                     (Omega ((x : B.1) * (P x), (pt B, f)))
+                     (totalFibOmega B P f,
+                       refl (Omega ((x : B.1) *  (P x), (pt B, f))).1
+                         (refl ( (x : B.1) * (P x)) (pt B, f)))).1
+                  (ih x)

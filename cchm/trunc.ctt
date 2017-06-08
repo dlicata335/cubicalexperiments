@@ -57,4 +57,18 @@ pathSpacePropTrunc (A : U) (x y : A) :
   propTrunc (Path A x y) -> Path (setTrunc A) (inc x) (inc y) =
   split
     inc p -> <i> inc (p @ i)
-    inh a b @ i -> <j> inh{setTrunc A} (inc x) (inc y) (pathSpacePropTrunc A x y a) (pathSpacePropTrunc A x y b) @ i @ j
+    inh a b @ i -> <j> inh{setTrunc A} (inc x) (inc y)
+                       (pathSpacePropTrunc A x y a)
+                       (pathSpacePropTrunc A x y b)
+                       @ i @ j
+
+pathSpaceSetTrunc (A : U) (x y : A) :
+  setTrunc (Path A x y) -> Path (gTrunc A) (inc x) (inc y) =
+  split
+    inc p -> <i> inc (p @ i)
+    inh a b p q @ i j -> <k> inh{gTrunc A} (inc x) (inc y)
+                             (pathSpaceSetTrunc A x y a)
+                             (pathSpaceSetTrunc A x y b)
+                             (<i> pathSpaceSetTrunc A x y (p @ i))
+                             (<i> pathSpaceSetTrunc A x y (q @ i))
+                             @ i @ j @ k

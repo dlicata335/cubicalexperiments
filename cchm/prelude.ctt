@@ -24,8 +24,19 @@ HSet (A : U) : U = (a b : A) -> HProp (Path A a b)
 OneType (A : U) : U = (a b : A) -> HSet (Path A a b)
 
 -- --------------------------------------------------------------------
+-- collections
+
+HPROP : U = (A : U) * HProp A
+HSET : U = (A : U) * HSet A
+
+-- --------------------------------------------------------------------
 -- Sigma types
 
+Sigma (A : U) (B : A -> U) : U = (x : A) * B x
+
+and (A : U) (B : U) : U = (x : A) * B
+
+Pi (A:U) (P:A->U) : U = (x:A) -> P x
 
 -- lemPropF (A : U) (P : A -> U) (pP : (x : A) -> HProp (P x)) (a0 a1 :A)
 --          (p : Path A a0 a1) (b0 : P a0) (b1 : P a1) : PathP (<i>P (p@i)) b0 b1 =
@@ -74,9 +85,16 @@ lemSig (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x))
        Path ((x:A) * B x) u v =
   <i> (p @ i, lemPropF A B pB u.1 v.1 p u.2 v.2 @ i)
 
+
 lemSig' (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x))
         (u v : (x:A) * B x) (p : Path ((x:A) * B x) u v) :
         Path A u.1 v.1 = <i> (p @ i).1
+
+propSig (A : U) (B : A -> U) (pA : HProp A)
+        (pB : (x : A) -> HProp (B x)) (t u : (x:A) * B x) :
+        Path ((x:A) * B x) t u =
+  lemSig A B pB t u (pA t.1 u.1)
+
 
 -- ----------------------------------------------------------------------
 -- basic types
@@ -109,14 +127,23 @@ propIsProp (A : U) : HProp (HProp A) =
   \(f g : HProp A) -> <i> \(a b : A) ->
     propSet A f a b (f a b) (g a b) @ i
 
+propIsSet (A : U) : HSet (HProp A) =
+  propSet (HProp A) (propIsProp A)
+
 setIsProp (A : U) : HProp (HSet A) =
  \(f g : HSet A) -> <i> \(a b :A) ->
    propIsProp (Path A a b) (f a b) (g a b) @ i
 
+setIsSet (A : U) : HSet (HSet A) =
+  propSet (HSet A) (setIsProp A)
 
 data Void =
 
 abort (A : U) : Void -> A = split{}
+
+not (A : U) : U = A -> Void
+
+stable (A : U) : U = not (not A) -> A
 
 Unit_level : HProp Unit = rem
   where rem1 : (x:Unit) -> Path Unit x tt = split tt -> refl Unit tt
@@ -457,45 +484,6 @@ Pi_level_prop (A : U) (B : A -> U) (h : (x : A) -> HProp (B x))
 
 
 
--- ----------------------------------------------------------------------
--- basic types
-
-data Unit = tt
-
--- for controling reduction
-STUCK : Unit = ?
-NONSTUCK : Unit = tt
-
-Contractible_level (A : U) : HProp (Contractible A) =
-  \ (a : Contractible A) (b : Contractible A) -> eq a.1 a.2 b.1 b.2 where
-  square (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) (a : A) : Unit -> PathP (<x> Path A (eq1 c2 @ x) a) (eq1 a) (eq2 a) = split tt -> ?
---         <x><y> eq1 (eq1 c2 @ x) @ y
-
-  eq (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) :
-        Path (Contractible A) (c1 , eq1) (c2, eq2) =
-        <x> (eq1 c2 @ x , \ (a : A) -> <y> square c1 eq1 c2 eq2 a STUCK @ x @ y)
-
-
-data Void =
-
-abort (A : U) : Void -> A = split{}
-
-Unit_level : HProp Unit = rem
-  where rem1 : (x:Unit) -> Path Unit x tt = split tt -> refl Unit tt
-        rem (x:Unit) : (y:Unit) -> Path Unit x y = split tt -> rem1 x
-
-Void_level : HProp Void = \ (x y:Void) -> abort (Path Void x y) x
-
-data Either (A B : U) = inl (a : A)
-                      | inr (b : B)
-
-Times (A B : U) : U = (_ : A) * B
-
--- Times_level (A B :U) (pA: prop A) (pB: A -> prop B) : prop (and A B) =
---  \ (u v:and A B) -> <i>((pA u.1 v.1)@i, (pB u.1 u.2 v.2)@i)
-
-data Bool = true | false
-
 ----------- subst and funDepTr -----------
 
 subst (A : U) (P : A -> U) (a0 a1 : A) (p : Path A a0 a1) (b : P a0) : P a1 = comp (<x> P (p @ x)) b []
@@ -509,3 +497,87 @@ funDepTr (A0 A1 :U) (p:Path U A0 A1) (u0:A0) (u1:A1) : Path U (PathP p u0 u1) (P
       (PathP p (fill (<_> A0) u0 [] @ i) u1)
       [(i=1) -> <j> PathP (<k> p @ j\/k) (comp (<k> p @ j/\k) u0 []) u1,
        (i=0) -> <_> PathP p u0 u1]
+
+
+------------- Discrete -------------------
+
+dec (A : U) : U = Either A (not A)
+
+Discrete (A : U) : U = (a b : A) -> dec (Path A a b)
+
+
+
+
+--- Prop----------
+
+propVoid : HProp Void = \ (x y:Void) -> abort (Path Void x y) x
+
+propNot (A:U) : HProp (not A) = \ (f g:not A) -> <i>\(x:A) -> (propVoid (f x) (g x))@i
+
+dNot (A:U) (a:A) : not (not A) = \ (h : not A) -> h a
+
+--- Const ---
+
+const (A : U) (f : A -> A) : U = (x y : A) -> Path A (f x) (f y)
+
+exConst (A : U) : U = (f:A -> A) * const A f
+
+stableConst (A : U) (sA: stable A) : exConst A =
+ (\ (x:A) -> sA (dNot A x),\ (x y:A) -> <i>sA (propNot (not A) (dNot A x) (dNot A y) @ i))
+
+decStable (A:U) : dec A -> stable A = split
+ inl a -> \ (h :not (not A)) -> a
+ inr b -> \ (h :not (not A)) -> abort A (h b)
+
+decEqCong (A B : U) (f : A -> B) (g : B -> A) : dec A -> dec B = split
+  inl a -> inl (f a)
+  inr h -> inr (\ (b:B) -> h (g b))
+
+
+---- Path lemmas --
+
+inv (A : U) (a b : A) (p : Path A a b) : Path A b a = <i> p @ -i
+
+compPath (A : U) (a b c : A) (p : Path A a b) (q : Path A b c) : Path A a c =
+  <i> comp (<j>A) (p @ i) [ (i = 1) -> q, (i=0) -> <j> a ]
+
+compPath' (A : U) (a b c : A) (p : Path A a b) (q : Path A b c) : Path A a c =
+  subst A (Path A a) b c q p
+
+compPath'' (A : U) (a b : A) (p : Path A a b) : (c : A) -> (q : Path A b c) -> Path A a c =
+  J A a ( \ (b : A) (p : Path A a b) -> (c : A) -> (q : Path A b c) -> Path A a c) rem b p
+    where rem (c : A) (p : Path A a c) : Path A a c = p
+
+compUp (A : U) (a a' b b' : A)
+       (p : Path A a a') (q : Path A b b') (r : Path A a b) : Path A a' b' =
+  <i> comp (<j>A) (r @ i) [(i = 0) -> p, (i = 1) -> q]
+
+compDown (A : U) (a a' b b' : A)
+         (p : Path A a a') (q: Path A b b') : Path A a' b' -> Path A a b =
+ compUp A a' a b' b (inv A a a' p) (inv A b b' q)
+
+lemCompInv (A:U) (a b c:A) (p:Path A a b) (q:Path A b c)
+  : Path (Path A a b) (compPath A a c b (compPath A a b c p q) (inv A b c q)) p =
+  <j i> comp (<k>A)
+          ((fill (<k>A) (p @ i) [(i=0) -> <k>a, (i=1) -> q]) @ -j)
+          [ (i=0) -> <k> a
+          , (i=1) -> <k> q @ - (j \/  k)
+          , (j=0) -> fill (<k>A) ((compPath A a b c p q @ i))
+                       [(i=0) -> <k>a, (i=1) -> <k> q @ -k ]
+          , (j=1) -> <k> p @ i
+          ]
+
+lemCompInv2 (A:U) (a b:A) (q:Path A a b) : (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i)) =
+ J A b (\ (x:A) (p:Path A b x) -> Path (Path A a b) q (compPath A a x b (compPath A a b x q p) (<i>p@-i))) rem
+ where rem : Path (Path A a b) q
+                           (<i>comp (<_>A) (comp (<_>A) (q@i) [(i=0) -> <_>a,(i=1) -> <_>b]) [(i=0) -> <_>a,(i=1) -> <_>b]) =
+          <j i>comp (<_>A) (comp (<_>A) (q@i) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]) [(j=0) -> <_>q@i,(i=0) -> <_>a,(i=1) -> <_>b]
+
+
+lemInv (A:U) (a b:A) (p:Path A a b) : Path (Path A b b) (compPath A b a b (inv A a b p) p)  (refl A b) =
+   <j i> comp (<k>A) (p @ (-i \/ j)) [(i=0) -> <l>b, (j=1) -> <l>b, (i=1) -> <k> p @ (j \/ k)]
+
+
+compInvRight (A:U) (a b:A) (p:Path A a b) : Path (Path A a a) (compPath A a b a p (<i>p@-i)) (refl A a) =
+  lemInv A b a (<x> p @ -x)
+

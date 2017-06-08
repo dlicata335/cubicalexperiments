@@ -5,6 +5,7 @@ import susp
 import s1
 import join
 import pointedtypes
+import helix
 
 
 S2 : U = Susp S1
@@ -14,7 +15,7 @@ hopf : S2 -> U = split
   south -> S1
   merid a @ x -> rotpath a @ x
 
-totalHopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
+hopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
   north -> \ (a : S1) -> joinl (comp (<_> S1) a [])
   south -> \ (a : S1) -> joinr (comp (<_> S1) a [])
   merid a @ x ->
@@ -24,6 +25,8 @@ totalHopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
        (comp (<y> rotpath a @ y \/ x) p [])
        @ x
 
+totalHopfToJoin (e : (a : S2) * hopf a) : Join S1 S1 =
+  hopfToJoin e.1 e.2
 
 S3 : U = Susp S2
 ptS3 : PointedType = (S3, north)
@@ -44,10 +47,6 @@ lemPropFibS1 (P : S1 -> U) (pP : (x:S1) -> HProp (P x)) (bP: P base) : (x:S1) ->
  base -> bP
  loop @ i -> (lemPropF S1 P pP base base loopS1 bP bP) @ i
 
--- is there a direct way to show this? In the cubicaltt repo (and Brunerie's thesis), the proof of this uses the fact that
--- pi1S1 = Z
-setLoop : HSet (Path S1 base base) =
-  ?
 
 fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
   truncFibOmega
@@ -77,5 +76,42 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
           (\ (y:S1) -> setIsProp (Path S1 base y))
           setLoop)
 
+
+-- The map h from 9.3
+hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
+  trans bad_type good_type path_fix bad_thing
+  where
+  bad_type : U =
+    Path
+      (Path
+        (Path (Join S1 S1) (joinl (comp (<_> S1) base [])) (joinl (comp (<_> S1) base [])))
+        (<_> joinl (comp (<_> S1) base []))
+        (<_> joinl (comp (<_> S1) base [])))
+      (<_ _> joinl (comp (<_> S1) base []))
+      (<_ _> joinl (comp (<_> S1) base []))
+
+  good_type : U = Path (Path (Path (Join S1 S1) (joinl base) (joinl base)) (<_> joinl base) (<_> joinl base)) (<!0 !0> joinl base) (<!0 !0> joinl base)
+
+  uncomp : Path S1 (comp (<_> S1) base []) base =
+    <x> fill (<_> S1) base [] @ -x
+
+  path_fix : Path U bad_type good_type =
+    <x> Path
+          (Path
+            (Path (Join S1 S1) (joinl (uncomp @ x)) (joinl (uncomp @ x)))
+            (<_> joinl (uncomp @ x))
+            (<_> joinl (uncomp @ x)))
+          (<_ _> joinl (uncomp @ x))
+          (<_ _> joinl (uncomp @ x))
+
+
+  bad_thing : bad_type
+    =
+      itMapOmegaRefl
+        three
+        ((a : S2) * hopf a, (north, base))
+        (Join S1 S1)
+        totalHopfToJoin
+        (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
 
 
