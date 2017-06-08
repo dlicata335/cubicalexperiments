@@ -9,16 +9,22 @@ import sigma
 setFun (A B : U) (sB : HSet B) : HSet (A -> B) =
  setPi A (\(x : A) -> B) (\(x : A) -> sB)
 
+propFun (A B : U) (pB : HProp B) : HProp (A -> B) =
+ propPi A (\(x : A) -> B) (\(x : A) -> pB)
+
 eqEquivFst (A B : U) : (t u : equiv A B) ->
      Path U (Path (equiv A B) t u) (Path (A -> B) t.1 u.1)
    = lemSigProp (A -> B) (IsEquiv A B) (propIsEquiv A B)
 
--- groupoidFun (A B : U) (gB:groupoid B) : groupoid (A -> B) =
---   groupoidPi A (\(x : A) -> B) (\(x : A) -> gB)
+groupoidFun (A B : U) (gB:OneType B) : OneType (A -> B) =
+  groupoidPi A (\(x : A) -> B) (\(x : A) -> gB)
 
--- lem5 (A B : U) (gB:groupoid B) (t u:equiv A B) : HSet (Path (equiv A B) t u)
---  = substInv U HSet  (Path (equiv A B) t u) (Path (A -> B) t.1 u.1)
---             (eqEquivFst A B t u) (groupoidFun A B gB t.1 u.1)
+lem5 (A B : U) (gB:OneType B) (t u:equiv A B) : HSet (Path (equiv A B) t u)
+ = substInv U HSet (Path (equiv A B) t u) (Path (A -> B) t.1 u.1)
+            (eqEquivFst A B t u) (groupoidFun A B gB t.1 u.1)
+
+propequiv (X Y : U) (H : HProp Y) (f g : equiv X Y) : Path (equiv X Y) f g =
+  equivLemma X Y f g (<i> \(x : X) -> H (f.1 x) (g.1 x) @ i)
 
 setPath (A B : U) (sB : HSet B) : HSet (Path U A B) =
  substInv U HSet (Path U A B) (equiv A B) (corrUniv A B) (rem A B sB)
@@ -28,8 +34,16 @@ setPath (A B : U) (sB : HSet B) : HSet (Path U A B) =
             (eqEquivFst A B t u) (setFun A B sB t.1 u.1)
 
 -- the collection of all HSets is a groupoid / 1-type
-groupoidSET : OneType HSET = \(A B : HSET) ->
+HSETisOneType : OneType HSET = \(A B : HSET) ->
   let rem : HSet (Path U A.1 B.1) = setPath A.1 B.1 B.2
       rem1 : Path U (Path HSET A B) (Path U A.1 B.1) =
         lemSigProp U HSet setIsProp A B
   in substInv U HSet (Path HSET A B) (Path U A.1 B.1) rem1 rem
+
+-- the collection of all HProps is a set / 0-type
+HPROPisSet : HSet HPROP = \(A B : HPROP) ->
+  let rem1 : Path U (Path HPROP A B) (Path U A.1 B.1) = lemSigProp U HProp propIsProp A B
+      rem2 : Path U (Path U A.1 B.1) (equiv A.1 B.1) = corrUniv A.1 B.1
+      rem : Path U (Path HPROP A B) (equiv A.1 B.1) =
+        compPath U (Path HPROP A B) (Path U A.1 B.1) (equiv A.1 B.1) rem1 rem2
+  in substInv U HProp (Path HPROP A B) (equiv A.1 B.1) rem (propequiv A.1 B.1 B.2)
