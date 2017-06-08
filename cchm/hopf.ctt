@@ -78,17 +78,40 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
 
 
 -- The map h from 9.3
-
--- What is commened out below does not typecheck, because
--- base != comp (<_> S1) base []
 hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
-  ?
-{-
-  itMapOmegaRefl
-    three
-    ((a : S2) * hopf a, (north, base))
-    (Join S1 S1)
-    totalHopfToJoin
-    (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
+  trans bad_type good_type path_fix bad_thing
+  where
+  bad_type : U =
+    Path
+      (Path
+        (Path (Join S1 S1) (joinl (comp (<_> S1) base [])) (joinl (comp (<_> S1) base [])))
+        (<_> joinl (comp (<_> S1) base []))
+        (<_> joinl (comp (<_> S1) base [])))
+      (<_ _> joinl (comp (<_> S1) base []))
+      (<_ _> joinl (comp (<_> S1) base []))
 
--}
+  good_type : U = Path (Path (Path (Join S1 S1) (joinl base) (joinl base)) (<_> joinl base) (<_> joinl base)) (<!0 !0> joinl base) (<!0 !0> joinl base)
+
+  uncomp : Path S1 (comp (<_> S1) base []) base =
+    <x> fill (<_> S1) base [] @ -x
+
+  path_fix : Path U bad_type good_type =
+    <x> Path
+          (Path
+            (Path (Join S1 S1) (joinl (uncomp @ x)) (joinl (uncomp @ x)))
+            (<_> joinl (uncomp @ x))
+            (<_> joinl (uncomp @ x)))
+          (<_ _> joinl (uncomp @ x))
+          (<_ _> joinl (uncomp @ x))
+
+
+  bad_thing : bad_type
+    =
+      itMapOmegaRefl
+        three
+        ((a : S2) * hopf a, (north, base))
+        (Join S1 S1)
+        totalHopfToJoin
+        (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
+
+
