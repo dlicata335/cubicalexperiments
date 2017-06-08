@@ -34,7 +34,11 @@ setPath (A B : U) (sB : HSet B) : HSet (Path U A B) =
             (eqEquivFst A B t u) (setFun A B sB t.1 u.1)
 
 oneTypePath (A B : U) (oB : OneType B) : OneType (Path U A B) =
- undefined
+ substInv U OneType (Path U A B) (equiv A B) (corrUniv A B) (rem A B oB)
+  where
+  rem (A B : U) (oB:OneType B) (t u:equiv A B) : HSet (Path (equiv A B) t u)
+    = substInv U HSet (Path (equiv A B) t u) (Path (A -> B) t.1 u.1)
+            (eqEquivFst A B t u) (oneTypeFun A B oB t.1 u.1)
 
 -- the collection of all HProps is a set / 0-type
 HPROPisSet : HSet HPROP = \(A B : HPROP) ->

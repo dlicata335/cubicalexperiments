@@ -141,7 +141,8 @@ setIsSet (A : U) : HSet (HSet A) =
   propSet (HSet A) (setIsProp A)
 
 oneTypeIsProp (A : U) : HProp (OneType A) =
-  undefined
+  \(f g : OneType A) -> <i> \(a b :A) ->
+    setIsProp (Path A a b) (f a b) (g a b) @ i
 
 data Void =
 
