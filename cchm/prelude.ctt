@@ -78,7 +78,7 @@ lemPropF (A : U) (B : A -> U) (pB : (x : A) -> HProp (B x)) (a0 a1 :A)
          (p : Path A a0 a1) (b0 : B a0) (b1 : B a1) : PathP (<i>B (p@i)) b0 b1 =
   <i> comp (<_> B (p @ i)) (filler @ i)
          [ (i=0) -> <_> b0
-	 , (i=1) -> pB (p @ i) (filler @ 1) b1]
+         , (i=1) -> pB (p @ i) (filler @ 1) b1]
   where
     filler : PathP (<i> B (p @ i)) b0 (comp (<i> B (p @ i)) b0 [])
       = fill (<i> B (p @ i)) b0 []
@@ -139,6 +139,9 @@ setIsProp (A : U) : HProp (HSet A) =
 
 setIsSet (A : U) : HSet (HSet A) =
   propSet (HSet A) (setIsProp A)
+
+oneTypeIsProp (A : U) : HProp (OneType A) =
+  undefined
 
 data Void =
 

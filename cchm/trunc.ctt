@@ -115,6 +115,12 @@ pathSpaceSetTrunc (A : U) (x y : A) :
       (oneTruncIsOneType A (inc x) (inc y))
         (\ (p : Path A x y) -> <i> inc (p @ i))
 
+pathSpaceOneTrunc (A : U) (x y : A) :
+  oneTrunc (Path A x y) -> Path (twoTrunc A) (inc x) (inc y) =
+    oneTruncRec (Path A x y) (Path (twoTrunc A) (inc x) (inc y))
+      (twoTruncIsTwoType A (inc x) (inc y))
+        (\ (p : Path A x y) -> <i> inc (p @ i))
+
 setTruncPathSpace (A : U) (x y : A)
   (p : Path (setTrunc A) (inc x) (inc y)) : propTrunc (Path A x y) =
     comp (<i> (P (p @ i)).1) (inc (<_> x)) [] where
@@ -128,3 +134,10 @@ oneTruncPathSpace (A : U) (x y : A)
       P : oneTrunc A -> HSET =
        oneTruncRec A HSET HSETisOneType
          (\ (y : A) -> (setTrunc (Path A x y), setTruncIsSet (Path A x y)))
+
+twoTruncPathSpace (A : U) (x y : A)
+  (p : Path (twoTrunc A) (inc x) (inc y)) : oneTrunc (Path A x y) =
+    comp (<i> (P (p @ i)).1) (inc (<_> x)) [] where
+      P : twoTrunc A -> ONETYPE =
+       twoTruncRec A ONETYPE ONETYPEisTwoType
+         (\ (y : A) -> (oneTrunc (Path A x y), oneTruncIsOneType (Path A x y)))

@@ -33,12 +33,8 @@ setPath (A B : U) (sB : HSet B) : HSet (Path U A B) =
     = substInv U HProp (Path (equiv A B) t u) (Path (A -> B) t.1 u.1)
             (eqEquivFst A B t u) (setFun A B sB t.1 u.1)
 
--- the collection of all HSets is a 1-type
-HSETisOneType : OneType HSET = \(A B : HSET) ->
-  let rem : HSet (Path U A.1 B.1) = setPath A.1 B.1 B.2
-      rem1 : Path U (Path HSET A B) (Path U A.1 B.1) =
-        lemSigProp U HSet setIsProp A B
-  in substInv U HSet (Path HSET A B) (Path U A.1 B.1) rem1 rem
+oneTypePath (A B : U) (oB : OneType B) : OneType (Path U A B) =
+ undefined
 
 -- the collection of all HProps is a set / 0-type
 HPROPisSet : HSet HPROP = \(A B : HPROP) ->
@@ -47,3 +43,17 @@ HPROPisSet : HSet HPROP = \(A B : HPROP) ->
       rem : Path U (Path HPROP A B) (equiv A.1 B.1) =
         compPath U (Path HPROP A B) (Path U A.1 B.1) (equiv A.1 B.1) rem1 rem2
   in substInv U HProp (Path HPROP A B) (equiv A.1 B.1) rem (propequiv A.1 B.1 B.2)
+
+-- the collection of all HSets is a 1-type
+HSETisOneType : OneType HSET = \(A B : HSET) ->
+  let rem : HSet (Path U A.1 B.1) = setPath A.1 B.1 B.2
+      rem1 : Path U (Path HSET A B) (Path U A.1 B.1) =
+        lemSigProp U HSet setIsProp A B
+  in substInv U HSet (Path HSET A B) (Path U A.1 B.1) rem1 rem
+
+-- the collection of all 1-types is a 2-type
+ONETYPEisTwoType : TwoType ONETYPE = \(A B : ONETYPE) ->
+  let rem : OneType (Path U A.1 B.1) = oneTypePath A.1 B.1 B.2
+      rem1 : Path U (Path ONETYPE A B) (Path U A.1 B.1) =
+        lemSigProp U OneType oneTypeIsProp A B
+  in substInv U OneType (Path ONETYPE A B) (Path U A.1 B.1) rem1 rem
