@@ -1,7 +1,9 @@
 module trunc where
 
+
 import prelude
 import spheres
+import collection
 
 data propTrunc (A : U)
   = inc (a : A)
@@ -9,6 +11,11 @@ data propTrunc (A : U)
 
 propTruncIsProp (A : U) : HProp (propTrunc A) =
   \(a b : propTrunc A) -> <i> inh {propTrunc A} a b @ i
+
+propTruncRec (A B : U)(pB : HProp B)(f : A -> B) : propTrunc A -> B =
+  split
+    inc x -> f x
+    inh x y @ i -> pB (propTruncRec A B pB f x) (propTruncRec A B pB f y) @ i
 
 data setTrunc (A : U)
   = inc (a : A)
@@ -21,6 +28,12 @@ data setTrunc (A : U)
 setTruncIsSet (A : U) : HSet (setTrunc A) =
   \(a b : setTrunc A)(p q : Path (setTrunc A) a b)
     -> <i j> inh {setTrunc A} a b p q @ i @ j
+
+setTruncRec (A B : U)(sB : HSet B)(f : A -> B) : setTrunc A -> B =
+  split
+    inc x -> f x
+    inh x y p q @ i j -> sB (rec x) (rec y) (<i> rec (p @ i)) (<i> rec (q @ i)) @ i @ j where
+      rec : setTrunc A -> B = setTruncRec A B sB f
 
 data gTrunc (A : U)
   = inc (a : A)
@@ -39,6 +52,14 @@ gTruncIsOneType (A : U) : OneType (gTrunc A) =
    (r s : Path (Path (gTrunc A) a b) p q)
    -> <i j k> inh {gTrunc A} a b p q r s @ i @ j @ k
 
+gTruncRec (A B : U)(otB : OneType B)(f : A -> B) : gTrunc A -> B =
+  split
+    inc x -> f x
+    inh x y p q r s @ i j k ->
+      otB (rec x) (rec y) (<i> rec (p @ i)) (<i> rec (q @ i))
+        (<i j> rec (r @ i @ j)) (<i j> rec (s @ i @ j)) @ i @ j @ k where
+          rec : gTrunc A -> B = gTruncRec A B otB f
+
 -- General n-trunction
 -- This HIT currently does not work properly
 -- data Nat' = minusOne | suc (n : Nat')
@@ -55,20 +76,30 @@ gTruncIsOneType (A : U) : OneType (gTrunc A) =
 
 pathSpacePropTrunc (A : U) (x y : A) :
   propTrunc (Path A x y) -> Path (setTrunc A) (inc x) (inc y) =
-  split
-    inc p -> <i> inc (p @ i)
-    inh a b @ i -> <j> inh{setTrunc A} (inc x) (inc y)
-                       (pathSpacePropTrunc A x y a)
-                       (pathSpacePropTrunc A x y b)
-                       @ i @ j
+    propTruncRec (Path A x y) (Path (setTrunc A) (inc x) (inc y))
+      (setTruncIsSet A (inc x) (inc y))
+        (\ (p : Path A x y) -> <i> inc (p @ i))
 
 pathSpaceSetTrunc (A : U) (x y : A) :
   setTrunc (Path A x y) -> Path (gTrunc A) (inc x) (inc y) =
-  split
-    inc p -> <i> inc (p @ i)
-    inh a b p q @ i j -> <k> inh{gTrunc A} (inc x) (inc y)
-                             (pathSpaceSetTrunc A x y a)
-                             (pathSpaceSetTrunc A x y b)
-                             (<i> pathSpaceSetTrunc A x y (p @ i))
-                             (<i> pathSpaceSetTrunc A x y (q @ i))
-                             @ i @ j @ k
+    setTruncRec (Path A x y) (Path (gTrunc A) (inc x) (inc y))
+      (gTruncIsOneType A (inc x) (inc y))
+        (\ (p : Path A x y) -> <i> inc (p @ i))
+
+HPROPisSet : HSet HPROP = undefined
+
+setTruncPathSpace (A : U) (x y : A)
+  (p : Path (setTrunc A) (inc x) (inc y)) : propTrunc (Path A x y) =
+    comp (<i> (P (p @ i)).1) (inc (<_> x)) [] where
+      P : setTrunc A -> HPROP =
+        setTruncRec A HPROP HPROPisSet
+	  (\ (y : A) -> (propTrunc (Path A x y), propTruncIsProp (Path A x y)))
+
+HSetisOneType : OneType HSET = undefined
+
+gTruncPathSpace (A : U) (x y : A)
+  (p : Path (gTrunc A) (inc x) (inc y)) : setTrunc (Path A x y) =
+    comp (<i> (P (p @ i)).1) (inc (<_> x)) [] where
+      P : gTrunc A -> HSET =
+       gTruncRec A HSET HSetisOneType
+         (\ (y : A) -> (setTrunc (Path A x y), setTruncIsSet (Path A x y)))
