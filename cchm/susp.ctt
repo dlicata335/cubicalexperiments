@@ -2,16 +2,19 @@ module susp where
 
 import prelude
 import pointedtypes
+import join
 
-data Susp (A : U) = north
-                  | south
-                  | merid (a:A) <i> [(i=0) -> north, (i=1) -> south]
+Susp (A : U) : U = Join Bool A 
 
-SuspP (A : PointedType) : PointedType = (Susp A.1, north)
+     	       	  -- north
+                  -- | south
+                  -- | merid (a:A) <i> [(i=0) -> north, (i=1) -> south]
 
-meridP (A : PointedType) : PointedMap A (Omega(SuspP A)) = 
-   ((\ (a : A.1) -> <x> comp (<_> Susp A.1) (merid{Susp A.1} a @ x)
-                        [(x=0) -> <_> north , (x = 1) -> <x> merid{Susp A.1} A.2 @ -x]),
-   comp_inv_r (Susp A.1) north south (<x> merid{Susp A.1} A.2 @ x))
+-- SuspP (A : PointedType) : PointedType = (Susp A.1, north)
+
+-- meridP (A : PointedType) : PointedMap A (Omega(SuspP A)) = 
+--    ((\ (a : A.1) -> <x> comp (<_> Susp A.1) (merid{Susp A.1} a @ x)
+--                         [(x=0) -> <_> north , (x = 1) -> <x> merid{Susp A.1} A.2 @ -x]),
+--    comp_inv_r (Susp A.1) north south (<x> merid{Susp A.1} A.2 @ x))
 
 
