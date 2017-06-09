@@ -1,10 +1,10 @@
 module s1 where
 
 import prelude
-import equiv
 import pointedtypes
 import susp
 import join
+import equiv
 
 data S1 = base
         | loop <i> [(i=0) -> base, (i=1) -> base]
