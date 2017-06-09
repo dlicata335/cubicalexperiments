@@ -5,7 +5,7 @@ import int
 import join
 import hopf
 import pointedtypes
--- import circle12
+import circle12
 import helix
 import susp
 import joinassoc
@@ -17,23 +17,9 @@ S3 : U = Susp S2
 
 ptTrunc2S2 : PointedType = (twoTrunc S2, inc (joinl true))
 
-OmegaS1 : U = Path S1 (joinl true) (joinl true)
-
-loop : OmegaS1 =
-  <i> comp (<_> S1)
-        (comp (<_> S1) (joinl false)
-                [ (i = 0) -> <j> (join{S1} false true) @ j
-                , (i = 1) -> <j> (join{S1} false false) @ j
-                ]
-        )
-     [ (i = 0) -> <j> (join{S1} true true) @ -j
-     , (i = 1) -> <j> (join{S1} true false) @ -j
-     ]
-
-
 ptS3 : PointedType = (S3, joinl true)
 ptS2 : PointedType = (S2, joinl true)
-ptS1 : PointedType = (S1, joinl true)
+ptS1 : PointedType = (S1, base)
 
 
 mapJoin (A B C D : U) (f : A -> C) (g : B -> D) : Join A B -> Join C D =  split
@@ -92,27 +78,26 @@ ptJoin (pA : PointedType) (B:U) : PointedType = (Join pA.1 B, joinl (pt pA))
 
 ptBool : PointedType = (Bool,true)
 
-bjbToS1 (x:Join Bool Bool) : S1 = (suspJoinInv Bool x)
+bjbToS1 (x:Join Bool Bool) : S1 = S1_2_to_1 x
 
-bjbToS1Inv (x : S1) : Join Bool Bool = suspJoin Bool (x)
+bjbToS1Inv (x : S1) : Join Bool Bool = S1_1_to_2 x
 
 -- The map e^-1 from 7.3
-s3ToS1JoinS1Inv (x : Join S1 S1) : S3 = jassoc_lr Bool Bool S1 x
---   suspJoinInv S2
---     (mapJoin Bool (Join Bool S1) Bool S2 (\(b:Bool) -> b) (suspJoinInv S1)
---       (jassoc_lr Bool Bool S1
---         (mapJoin S1 S1 (Join Bool Bool) S1 bjbToS1Inv (\(z:S1) -> z) x)))
+s3ToS1JoinS1Inv (x : Join S1 S1) : S3 =
+  jassoc_lr Bool Bool S1
+    (mapJoin S1 S1 (Join Bool Bool) S1 bjbToS1Inv (\(z:S1) -> z) x)
 
+{-
+s3To22S1 (x: S3) : Join (Join Bool Bool) S1 = split
+  joinl true -> ?
+  joinl false -> ?
+  join a b @ x - ?
+-}
 
--- s3To22S1 (x: S3) : Join (Join Bool Bool) S1 = split
---   (joinl true) -> ?
---   (joinl false) -> ?
---   merid
-
--- The map e from 7.3
-s3ToS1JoinS1 (x:S3) : Join S1 S1 = (jassoc_rl Bool Bool S1 x)
-
-
+-- -- The map e from 7.3
+s3ToS1JoinS1 (x:S3) : Join S1 S1 =
+  mapJoin (Join Bool Bool) S1 S1 S1 bjbToS1 (\(x:S1) -> x)
+    (jassoc_rl Bool Bool S1 x)
 
 
 -- A modified version of the main map alpha from 8, which is equal to the
@@ -126,7 +111,7 @@ ptAlpha : PointedMap (ptJoin ptS1 S1) ptS2 = (alpha, refl S2 (joinl true))
 
 -- Let’s define the twelve maps first
 
-f0 : Z -> OmegaS1 = ? -- loopIt
+f0 : Z -> OmegaS1 = loopIt
 
 ptSusp (A : U) : PointedType = (Susp A, (joinl true))
 
@@ -158,7 +143,7 @@ f34 : (itOmega three ptS3).1 -> (itOmega three ptS2).1 =
   itMapOmegaRefl three ptS3 S2 (\(x : S3) -> ptAlpha.1 (s3ToS1JoinS1 x))
 
 f5 : (itOmega three ptS2).1 -> (itOmega three (ptJoin ptS1 S1)).1
- = ? -- hopfLoop
+ = hopfLoop
 
 f6 : (itOmega three (ptJoin ptS1 S1)).1 -> (itOmega three ptS3).1
  = itMapOmegaRefl three (ptJoin ptS1 S1) S3 s3ToS1JoinS1Inv
@@ -180,13 +165,13 @@ f9 : (Omega (oneTrunc (Omega ptS2).1, inc ((Omega ptS2).2))).1 -> setTrunc (itOm
  = oneTruncPathSpace (Omega ptS2).1 (Omega ptS2).2 (Omega ptS2).2   -- commutation of truncation with loop space
 
 f10 : setTrunc (itOmega two ptS2).1 -> OmegaS1
- = ? -- setTruncRec ((itOmega two ptS2).1) OmegaS1 setLoop e2'
+ = setTruncRec ((itOmega two ptS2).1) OmegaS1 setLoop e2'
 
 f11 : OmegaS1 -> Z
- = ? -- encode base
+ = encode base
 
 -- WORKS
-test0To1 : (itOmega two ptS2).1 = f1 loop -- (f0 oneZ)
+test0To1 : (itOmega two ptS2).1 = f1 loopS1 -- (f0 oneZ)
 
 -- WORKS
 test0To2 : (itOmega three ptS3).1 = f2 test0To1
@@ -200,7 +185,10 @@ test0To4 : (itOmega three ptS2).1 = f4 test0To3
 test34 : (itOmega three ptS2).1 = f34 test0To2
 
 -- -- NOT SURE (takes a long time)
--- test0To5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 test0To4
+test0To5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 test0To4
+
+test0To6 : (itOmega three ptS3).1 = f6 test0To5
+
 
 -- -- -- Test f5 on a generator given by the exchange law
 -- -- -- testf5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 genPi3S2
@@ -208,4 +196,4 @@ test34 : (itOmega three ptS2).1 = f34 test0To2
 bypass (p : (itOmega two ptS2).1) : (itOmega two (twoTrunc S2, inc ptS2.2)).1 =
   <i j> inc (p @ i @ j)
 
-bypassTest : Z = f11 (f10 (f9 (f8 (bypass (f1 loop)))))
+bypassTest : Z = f11 (f10 (f9 (f8 (bypass (f1 loopS1)))))
