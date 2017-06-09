@@ -109,15 +109,15 @@ STUCK : Unit = ?
 NONSTUCK : Unit = tt
 
 Contractible_level (A : U) : HProp (Contractible A) =
-  \ (a : Contractible A) (b : Contractible A) -> eq a.1 a.2 b.1 b.2 where
-  square (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) (a : A) :
-         Unit -> PathP (<x> Path A (eq1 c2 @ x) a)
-             (eq1 a) (eq2 a) = split tt -> ?
---         <x><y> eq1 (eq1 c2 @ x) @ y
-
-  eq (c1 : A) (eq1 : (x : A) -> Path A c1 x) (c2 : A) (eq2 : (x : A) -> Path A c2 x) :
-        Path (Contractible A) (c1 , eq1) (c2, eq2) =
-        <x> (eq1 c2 @ x , \ (a : A) -> <y> square c1 eq1 c2 eq2 a STUCK @ x @ y)
+  \(a : Contractible A) (b : Contractible A) ->
+  let a0 : A = a.1
+      p0 : (x:A) -> Path A a0 x = a.2
+      a1 : A = b.1
+      p1 : (x:A) -> Path A a1 x = b.2
+      lem1 (x:A) : PathP (<i>Path A a0 (p1 x@i)) (p0 a1) (p0 x) = <i j> p0 (p1 x@i) @ j
+  in <j> (p0 a1@j, \ (x:A) ->
+          <i>comp (<_>A) (lem1 x@i@j) [ (i=0) -> <k>p0 a1@j, (i=1) -> <k>p0 x@(j\/k)
+                                      , (j=0) -> <k>p0 x@(i/\k), (j=1) -> <k>p1 x@i ])
 
 propSet (A : U) (h : HProp A) : HSet A =
  \(a b : A) (p q : Path A a b) ->
