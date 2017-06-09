@@ -25,14 +25,85 @@ S1_2_to_1 : Susp Bool -> S1 = split
   joinr a -> base
   join a b @ x -> S1_2_to_1_b b @ x
 
-
-
+{-
+-- The following doesn't yet typecheck. Very gnarly anyway.
 S1_1_to_2_c1 : (x : S1) -> Path S1 (S1_2_to_1 (S1_1_to_2 x)) x =
   split
-    base -> <x> base
-    loop @ i ->
-      <j> (fill (<_>S1) (loop{S1}@i) [(i=0) -> <_> base, (i=1) -> <_> base]) @ -j
+    base -> <_> base
+    loop @ i -> ?
+      where
+        aux2
+         : Path
+            S1
+            (comp (<_> S1)
+              (comp (<_> S1)
+                (loop {S1} @ i)
+                [(i = 0) -> <_> base,
+                 (i = 1) -> <j> loop {S1} @ -j ])
+              [(i = 0) -> <_> base,
+               (i = 1) -> <j>
+                 comp (<_> S1) base
+                   [(j = 0) -> <_> base,
+                    (j = 1) -> <_> base]])
+             (comp (<_> S1)
+                (loop {S1} @ i)
+                [(i = 0) -> <_> base,
+                 (i = 1) -> <j> loop {S1} @ -j ])
+          = <k> fill
+              (<_> S1)
+              (comp
+                (<_> S1)
+                (loop {S1} @ i)
+                [(i = 0) -> <_> base,
+                 (i = 1) -> <j> loop {S1} @ -j ])
+              [(i = 0) -> <_> base,
+               (i = 1) -> <j>
+                 comp (<_> S1) base
+                   [(j = 0) -> <_> base,
+                    (j = 1) -> <_> base]]
+             @ -k
 
+        aux3
+          : Path
+             S1
+             (comp (<_> S1)
+                (loop {S1} @ i)
+                [(i = 0) -> <_> base,
+                 (i = 1) -> <j> loop {S1} @ -j ])
+             (loop {S1} @ i)
+          = <k> fill (<_> S1) (loop {S1} @ i) [(i = 0) -> <_> base, (i = 1) -> <j> loop {S1} @ -j] @ -k
+
+
+        aux
+         : Path
+            S1
+            (comp (<_> S1)
+              (comp (<_> S1)
+                (loop {S1} @ i)
+                [(i = 0) -> <_> base,
+                 (i = 1) -> <j> loop {S1} @ -j ])
+              [(i = 0) -> <_> base,
+               (i = 1) -> <j>
+                 comp (<_> S1) base
+                   [(j = 0) -> <_> base,
+                    (j = 1) -> <_> base]])
+            (loop {S1} @ i)
+            = <j>
+                comp (<_> S1) (aux2 @ j)
+                [(j=0) -> <_>
+                   (comp (<_> S1)
+                      (comp (<_> S1)
+                        (loop {S1} @ i)
+                        [(i = 0) -> <_> base,
+                         (i = 1) -> <j> loop {S1} @ -j ])
+                      [(i = 0) -> <_> base,
+                       (i = 1) -> <j>
+                         comp (<_> S1) base
+                           [(j = 0) -> <_> base,
+                            (j = 1) -> <_> base]]),
+                  (j=1) -> aux3]
+
+{-
 
 S1_1_to_2_c2_merid
   : (b : Bool)
@@ -55,3 +126,4 @@ S1_1_to_2_c2 : (x : Susp Bool) -> Path (Susp Bool) (S1_1_to_2 (S1_2_to_1 x)) x =
 
 S1_1_is_S1_2 : Path U S1 (Susp Bool) =
   isoPath S1 (Susp Bool) S1_1_to_2 S1_2_to_1 S1_1_to_2_c2 S1_1_to_2_c1
+-}
