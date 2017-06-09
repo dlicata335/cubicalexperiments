@@ -3,6 +3,8 @@ module s1 where
 import prelude
 import equiv
 import pointedtypes
+import susp
+import join
 
 data S1 = base
         | loop <i> [(i=0) -> base, (i=1) -> base]
@@ -19,6 +21,44 @@ loopS1_2 : OmegaS1= compS1 loopS1 loopS1
 
 invLoop : OmegaS1 = <i> loop {S1} @ -i
 
+S1J : U = Join Bool Bool
+
+toS1J : S1 -> S1J = split
+  base -> joinl true
+  loop @ i -> compPath (S1J)
+                       (joinl true) (joinl false) (joinl true)
+                       (compPath (S1J)
+                        (joinl true) (joinr false) (joinl false)
+                        (<i> join{S1J} true false @i)
+                        (<i> join{S1J} false false @-i))
+                       (compPath (S1J)
+                        (joinl false) (joinr true) (joinl true)
+                        (<i> join{S1J} false true @i)
+                        (<i> join{S1J} true true @-i)) @ i
+
+fromS1JJoin : Bool -> Bool -> Path S1 base base = split
+  true ->
+    split@(Bool -> Path S1 base base) with
+      true  -> <i> loop{S1} @ i
+      false -> <_> base
+  false ->
+    split@(Bool -> Path S1 base base) with
+      true  -> <_> base
+      false -> <_> base
+
+fromS1J : S1J -> S1 = split
+  joinl b -> base
+  joinr b -> base
+  join a b @ i -> fromS1JJoin a b @ i
+
+fromToS1J (s : S1) : Path S1 (fromS1J (toS1J s)) s = undefined
+  -- base -> <_> base
+  -- loop @ i -> <_> loop{S1} @ i
+
+toFromS1J (s : S1J) : Path S1J (toS1J (fromS1J s)) s = undefined
+  -- joinl b -> <_> joinl b
+  -- joinr b -> <_> joinr b
+  -- join a b @ i -> ?
 
 -- "rotation by angle x"
 -- adds loops
