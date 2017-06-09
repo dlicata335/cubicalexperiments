@@ -2,15 +2,18 @@ module circle12 where
 
 import prelude
 import s1
-import spheres
+-- import spheres
 import susp
 import equiv
 
 S1_1_to_2 : S1 -> Susp Bool = split
-  base -> north
-  loop @ x -> comp (<_> Susp Bool)
-                   (merid{Susp Bool} true @ x)
-                   [(x=0) -> <_> north , (x=1) -> <x> (merid{Susp Bool} false @ -x)]
+  base -> joinl true
+  loop @ x ->
+    comp
+      (<_> Susp Bool)
+      (merid Bool true @ x)
+      [(x=0) -> <_> joinl true,
+       (x=1) -> <x> merid Bool false @ -x]
 
 S1_2_to_1_b : Bool -> Path S1 base base = split
   true -> <x> loop{S1} @ x
