@@ -16,36 +16,38 @@ hopf : S2 -> U = split
         true -> <y> rotpath b @ y
         false -> <_> S1
 
-
-
+hopfToJoinAuxL : Bool -> S1 -> Join S1 S1 = split
+  true -> \(a : S1) -> joinl a
+  false -> \(a : S1) -> joinr a
 
 
 hopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
-  joinl a -> ?
-  joinr a -> ?
-  join a b @ x -> ?
-{-
-  north -> \ (a : S1) -> joinl a
-  south -> \ (a : S1) -> joinr a
-  merid a @ x ->
-    \(p : rotpath a @ x) ->
-      comp
-        (<_> Join S1 S1)
-        (join{Join S1 S1}
-           (comp (<z> rotpath a @ -z /\ x) p [])
-           (comp (<z> rotpath a @ z \/ x) p [])
-           @ x)
-        [(x=0) -> <z> joinl (fill (<_> S1) p [] @ -z),
-         (x=1) -> <z> joinr (fill (<_> S1) p [] @ -z)]-}
+  joinl a -> hopfToJoinAuxL a
+  joinr a -> \(a : S1) -> joinr a
+  join a b @ x -> aux a b @ x
+    where
+      aux : (a : Bool) -> (b : S1) -> PathP (<y> hopf (join{S2} a b @ y) -> Join S1 S1) (hopfToJoinAuxL a) (\(a : S1) -> joinr a) = split
+        true ->
+          \(a : S1) -> <x> \(p : rotpath a @ x) ->
+            comp
+              (<_> Join S1 S1)
+              (join{Join S1 S1}
+                 (comp (<z> rotpath a @ -z /\ x) p [])
+                 (comp (<z> rotpath a @ z \/ x) p [])
+                 @ x)
+              [(x=0) -> <z> joinl (fill (<_> S1) p [] @ -z),
+               (x=1) -> <z> joinr (fill (<_> S1) p [] @ -z)]
 
-{-
+        false -> \(_ : S1) -> <_> \(a : S1) -> joinr a
+
+
 
 totalHopfToJoin (e : (a : S2) * hopf a) : Join S1 S1 =
   hopfToJoin e.1 e.2
 
 S3 : U = Susp S2
-ptS3 : PointedType = (S3, north)
-ptS2 : PointedType = (S2, north)
+ptS3 : PointedType = (S3, joinl true)
+ptS2 : PointedType = (S2, joinl true)
 ptS1 : PointedType = (S1, base)
 
 
@@ -64,6 +66,7 @@ lemPropFibS1 (P : S1 -> U) (pP : (x:S1) -> HProp (P x)) (bP: P base) : (x:S1) ->
 
 
 
+{-
 fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
   truncFibOmega
     (itOmega two ptS2)
@@ -92,7 +95,6 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
           (\ (y:S1) -> setIsProp (Path S1 base y))
           setLoop)
 
-
 -- The map h from 9.3
 hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
   itMapOmegaRefl
@@ -101,8 +103,8 @@ hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
     (Join S1 S1)
     totalHopfToJoin
     (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
-
+-}
 
 e2' (p : (itOmega two ptS2).1) : OmegaS1
  = comp (<i> fibOmega ptS2 hopf base (p @ i)) (<_> base) []
--}
+
