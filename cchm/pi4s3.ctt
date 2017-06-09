@@ -168,7 +168,7 @@ f10 : setTrunc (itOmega two ptS2).1 -> OmegaS1
  = ? -- setTruncRec ((itOmega two ptS2).1) OmegaS1 setLoop e2'
 
 f11 : OmegaS1 -> Z
- = ? -- encode base
+ = encode base
 
 -- WORKS
 test0To1 : (itOmega two ptS2).1 = f1 loopS1 -- (f0 oneZ)
