@@ -12,7 +12,6 @@ import joinassoc
 import trunc
 
 
-S1 : U = Susp Bool
 S2 : U = Susp S1
 S3 : U = Susp S2
 
