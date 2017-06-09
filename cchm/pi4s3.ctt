@@ -143,7 +143,7 @@ f34 : (itOmega three ptS3).1 -> (itOmega three ptS2).1 =
   itMapOmegaRefl three ptS3 S2 (\(x : S3) -> ptAlpha.1 (s3ToS1JoinS1 x))
 
 f5 : (itOmega three ptS2).1 -> (itOmega three (ptJoin ptS1 S1)).1
- = ? -- hopfLoop
+ = hopfLoop
 
 f6 : (itOmega three (ptJoin ptS1 S1)).1 -> (itOmega three ptS3).1
  = itMapOmegaRefl three (ptJoin ptS1 S1) S3 s3ToS1JoinS1Inv
@@ -185,7 +185,10 @@ test0To4 : (itOmega three ptS2).1 = f4 test0To3
 test34 : (itOmega three ptS2).1 = f34 test0To2
 
 -- -- NOT SURE (takes a long time)
--- test0To5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 test0To4
+test0To5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 test0To4
+
+test0To6 : (itOmega three ptS3).1 = f6 test0To5
+
 
 -- -- -- Test f5 on a generator given by the exchange law
 -- -- -- testf5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 genPi3S2
