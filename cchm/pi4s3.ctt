@@ -17,7 +17,7 @@ S1 : U = Susp Bool
 S2 : U = Susp S1
 S3 : U = Susp S2
 
-ptTrunc2S2 : PointedType = (twoTrunc S2, ?)
+ptTrunc2S2 : PointedType = (twoTrunc S2, inc (joinl true))
 
 OmegaS1 : U = Path S1 (joinl true) (joinl true)
 
@@ -128,7 +128,7 @@ ptAlpha : PointedMap (ptJoin ptS1 S1) ptS2 = (alpha, refl S2 (joinl true))
 
 -- Let’s define the twelve maps first
 
--- f0 : Z -> OmegaS1 = loopIt
+f0 : Z -> OmegaS1 = ? -- loopIt
 
 ptSusp (A : U) : PointedType = (Susp A, (joinl true))
 
@@ -160,7 +160,7 @@ f34 : (itOmega three ptS3).1 -> (itOmega three ptS2).1 =
   itMapOmegaRefl three ptS3 S2 (\(x : S3) -> ptAlpha.1 (s3ToS1JoinS1 x))
 
 f5 : (itOmega three ptS2).1 -> (itOmega three (ptJoin ptS1 S1)).1
- = ? --hopfLoop
+ = ? -- hopfLoop
 
 f6 : (itOmega three (ptJoin ptS1 S1)).1 -> (itOmega three ptS3).1
  = itMapOmegaRefl three (ptJoin ptS1 S1) S3 s3ToS1JoinS1Inv
@@ -168,11 +168,18 @@ f6 : (itOmega three (ptJoin ptS1 S1)).1 -> (itOmega three ptS3).1
 f7 : (itOmega three ptS3).1 -> (itOmega two ptTrunc2S2).1
  = ?  -- work in progress in truncHopf.ctt
 
-f8 : (itOmega two ptTrunc2S2).1 -> (Omega (oneTrunc (Omega ptS2).1, inc ((Omega ptS2).2))).1
- = ?  -- commutation of truncation with loop space
+f8' (p : (Omega ptTrunc2S2).1) : oneTrunc (Omega ptS2).1 =
+  twoTruncPathSpace S2 (joinl true) (joinl true) p
+
+f8 (p : (itOmega two ptTrunc2S2).1) : (Omega (oneTrunc (Omega ptS2).1, inc ((Omega ptS2).2))).1
+ = <i> comp (<_> oneTrunc (Omega ptS2).1) (f8' (p @ i))
+      [ (i=0) -> <i> fill (<_> oneTrunc (Omega ptS2).1) (inc (<_> joinl true)) [] @ -i
+      , (i=1) -> <i> fill (<_> oneTrunc (Omega ptS2).1) (inc (<_> joinl true)) [] @ -i
+      ]
+    -- commutation of truncation with loop space
 
 f9 : (Omega (oneTrunc (Omega ptS2).1, inc ((Omega ptS2).2))).1 -> setTrunc (itOmega two ptS2).1
- = ?  -- commutation of truncation with loop space
+ = oneTruncPathSpace (Omega ptS2).1 (Omega ptS2).2 (Omega ptS2).2   -- commutation of truncation with loop space
 
 f10 : setTrunc (itOmega two ptS2).1 -> OmegaS1
  = ? -- setTruncRec ((itOmega two ptS2).1) OmegaS1 setLoop e2'
@@ -199,3 +206,8 @@ test34 : (itOmega three ptS2).1 = f34 test0To2
 
 -- -- -- Test f5 on a generator given by the exchange law
 -- -- -- testf5 : (itOmega three (ptJoin ptS1 S1)).1 = f5 genPi3S2
+
+bypass (p : (itOmega two ptS2).1) : (itOmega two (twoTrunc S2, inc ptS2.2)).1 =
+  <i j> inc (p @ i @ j)
+
+bypassTest : Z = f11 (f10 (f9 (f8 (bypass (f1 loop)))))
