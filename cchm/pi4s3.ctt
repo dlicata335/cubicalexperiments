@@ -165,7 +165,7 @@ f9 : (Omega (oneTrunc (Omega ptS2).1, inc ((Omega ptS2).2))).1 -> setTrunc (itOm
  = oneTruncPathSpace (Omega ptS2).1 (Omega ptS2).2 (Omega ptS2).2   -- commutation of truncation with loop space
 
 f10 : setTrunc (itOmega two ptS2).1 -> OmegaS1
- = ? -- setTruncRec ((itOmega two ptS2).1) OmegaS1 setLoop e2'
+ = setTruncRec ((itOmega two ptS2).1) OmegaS1 setLoop e2'
 
 f11 : OmegaS1 -> Z
  = encode base
