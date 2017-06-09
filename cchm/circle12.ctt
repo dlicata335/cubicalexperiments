@@ -19,10 +19,11 @@ S1_2_to_1_b : Bool -> Path S1 base base = split
   true -> <x> loop{S1} @ x
   false -> <_> base
 
+
 S1_2_to_1 : Susp Bool -> S1 = split
-  north -> base
-  south -> base
-  merid b @ x -> S1_2_to_1_b b @ x
+  joinl a -> base
+  joinr a -> base
+  join a b @ x -> S1_2_to_1_b b @ x
 
 
 
