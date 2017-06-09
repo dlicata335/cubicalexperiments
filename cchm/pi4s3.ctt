@@ -3,11 +3,10 @@ module pi4s3 where
 
 import int
 import join
--- import hopf
+import hopf
 import pointedtypes
 -- import circle12
--- import helix
--- import exchange
+import helix
 import susp
 import joinassoc
 import trunc
