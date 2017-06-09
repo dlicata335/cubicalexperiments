@@ -2,7 +2,6 @@ module s1 where
 
 import prelude
 import pointedtypes
-import susp
 import join
 import equiv
 
