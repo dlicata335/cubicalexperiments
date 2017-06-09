@@ -21,17 +21,17 @@ ptTrunc2S2 : PointedType = (twoTrunc S2, ?)
 
 OmegaS1 : U = Path S1 (joinl true) (joinl true)
 
-loop : OmegaS1 = 
-  <i> comp (<_> S1) 
-        (comp (<_> S1) (joinl false) 
- 	      	[ (i = 0) -> <j> (join{S1} false true) @ j
-		, (i = 1) -> <j> (join{S1} false false) @ j
-		]
-	)
+loop : OmegaS1 =
+  <i> comp (<_> S1)
+        (comp (<_> S1) (joinl false)
+                [ (i = 0) -> <j> (join{S1} false true) @ j
+                , (i = 1) -> <j> (join{S1} false false) @ j
+                ]
+        )
      [ (i = 0) -> <j> (join{S1} true true) @ -j
      , (i = 1) -> <j> (join{S1} true false) @ -j
      ]
-     
+
 
 ptS3 : PointedType = (S3, joinl true)
 ptS2 : PointedType = (S2, joinl true)
@@ -51,18 +51,18 @@ suspJoin (A : U) : Susp A -> Join Bool A = \(x : Susp A) -> x
   -- (joinl false)   -> joinl false
   -- merid a @ i -> compPath (Join Bool A) (joinl true) (joinr a) (joinl false)
   --                      (<i> join {Join Bool A} true a @ i)
-  --                      (<i> (join {Join Bool A} false a) @-i) 
-  -- 		       @ i
+  --                      (<i> (join {Join Bool A} false a) @-i)
+  --                   @ i
 
 merid (A : U) (a : A) : (Path (Susp A) (joinl true) (joinl false)) =
   <i> compPath (Join Bool A) (joinl true) (joinr a) (joinl false)
                        (<i> join {Susp A} true a @ i)
-                       (<i> (join {Susp A} false a) @-i) 
-  		       @ i
+                       (<i> (join {Susp A} false a) @-i)
+                       @ i
 
 
---TEST -- 
--- p : Path (Join Bool S2) (joinl true) (joinl false) = 
+--TEST --
+-- p : Path (Join Bool S2) (joinl true) (joinl false) =
 --   <i> suspJoin S2 (merid {S3} (joinl true) @ i)
 
 

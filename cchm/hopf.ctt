@@ -10,17 +10,21 @@ import pointedtypes
 hopf : S2 -> U = split
   joinl a -> S1
   joinr a -> S1
-  join a b @ x -> aux a -- rotpath a @ x
+  join a b @ x -> aux a @ x
     where
-      aux : Bool -> U = split
-        true -> ? -- rotpath b @ x
-        false -> S1
+      aux : Bool -> Path U S1 S1 = split
+        true -> <y> rotpath b @ y
+        false -> <_> S1
 
 
 
-{-
+
 
 hopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
+  joinl a -> ?
+  joinr a -> ?
+  join a b @ x -> ?
+{-
   north -> \ (a : S1) -> joinl a
   south -> \ (a : S1) -> joinr a
   merid a @ x ->
@@ -32,8 +36,9 @@ hopfToJoin : (a : S2) -> hopf a -> Join S1 S1 = split
            (comp (<z> rotpath a @ z \/ x) p [])
            @ x)
         [(x=0) -> <z> joinl (fill (<_> S1) p [] @ -z),
-         (x=1) -> <z> joinr (fill (<_> S1) p [] @ -z)]
+         (x=1) -> <z> joinr (fill (<_> S1) p [] @ -z)]-}
 
+{-
 
 totalHopfToJoin (e : (a : S2) * hopf a) : Join S1 S1 =
   hopfToJoin e.1 e.2

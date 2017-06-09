@@ -3,111 +3,108 @@ module s1 where
 import prelude
 import equiv
 import pointedtypes
-import susp
 
-data OldCircle = base
-               | loop <i> [(i=0) -> base, (i=1) -> base]
+data S1 = base
+        | loop <i> [(i=0) -> base, (i=1) -> base]
 
-
-
-OldCircleP : PointedType = (OldCircle, base)
+S1P : PointedType = (S1, base)
 
 -- helpful abbreviations
-OmegaOldCircle : U = Path OldCircle base base
+OmegaS1 : U = Path S1 base base
 
-compOldCircle (p : OmegaOldCircle) (q : OmegaOldCircle) : OmegaOldCircle = <x> comp (<_> OldCircle) (p @ x) [(x=0) -> <_> base, (x=1) -> q]
-loopOldCircle : OmegaOldCircle = <i> loop{OldCircle} @ i
-loopOldCircle_2 : OmegaOldCircle= compOldCircle loopOldCircle loopOldCircle
+compS1 (p : OmegaS1) (q : OmegaS1) : OmegaS1 = <x> comp (<_> S1) (p @ x) [(x=0) -> <_> base, (x=1) -> q]
+loopS1 : OmegaS1 = <i> loop{S1} @ i
+loopS1_2 : OmegaS1= compS1 loopS1 loopS1
 
 
-invLoop : OmegaOldCircle = <i> loop {OldCircle} @ -i
+invLoop : OmegaS1 = <i> loop {S1} @ -i
 
 
 -- "rotation by angle x"
 -- adds loops
 
-rotLoop : (a : OldCircle) -> Path OldCircle a a = split
-  base -> loopOldCircle
-  loop @ i -> constSquare OldCircle base loopOldCircle @ i
+rotLoop : (a : S1) -> Path S1 a a = split
+  base -> loopS1
+  loop @ i -> constSquare S1 base loopS1 @ i
 
-rot : OldCircle -> OldCircle -> OldCircle = split
-  base -> (\ (y : OldCircle) -> y)
-  loop @ i -> (\ (y : OldCircle) -> rotLoop y @ i)
+rot : S1 -> S1 -> S1 = split
+  base -> (\ (y : S1) -> y)
+  loop @ i -> (\ (y : S1) -> rotLoop y @ i)
 
-rot_unit_r : (a : OldCircle) -> Path OldCircle (rot a base) a = split
+rot_unit_r : (a : S1) -> Path S1 (rot a base) a = split
    base -> <_> base
-   loop@x -> <_> loop{OldCircle}@x
+   loop@x -> <_> loop{S1}@x
 
-loopOldCircle_3 : Path OldCircle base base = compOldCircle loopOldCircle_2 loopOldCircle
--- test23 : PathP (<s> Path OldCircle (loopOldCircle_3 @ s) (loopOldCircle_3 @ s)) loopOldCircle_2 loopOldCircle_2 = <x> <y> rot (loopOldCircle_3 @ x) (loopOldCircle_2 @ y)
--- test23_diag : Path OldCircle base base = <x> test23 @ x @ x
+loopS1_3 : Path S1 base base = compS1 loopS1_2 loopS1
+-- test23 : PathP (<s> Path S1 (loopS1_3 @ s) (loopS1_3 @ s)) loopS1_2 loopS1_2 = <x> <y> rot (loopS1_3 @ x) (loopS1_2 @ y)
+-- test23_diag : Path S1 base base = <x> test23 @ x @ x
 
 -- at this point we have an hspace, so we could use the general proof that rot x and (\ x -> rot x y)
 -- are equivalences.  however, it's simpler to inline the connectedness argument for this case
 
-rotIsEquiv_loop : PathP (<x> IsEquiv OldCircle OldCircle (rot (loopOldCircle @ x))) (lemSinglContr OldCircle) (lemSinglContr OldCircle) =
+rotIsEquiv_loop : PathP (<x> IsEquiv S1 S1 (rot (loopS1 @ x))) (lemSinglContr S1) (lemSinglContr S1) =
   lemPropF
-    OldCircle
-    (\(a : OldCircle) -> IsEquiv OldCircle OldCircle (rot a))
-    (\(a : OldCircle) -> propIsEquiv OldCircle OldCircle (rot a))
+    S1
+    (\(a : S1) -> IsEquiv S1 S1 (rot a))
+    (\(a : S1) -> propIsEquiv S1 S1 (rot a))
     base
     base
-    loopOldCircle
-    (lemSinglContr OldCircle)
-    (lemSinglContr OldCircle)
+    loopS1
+    (lemSinglContr S1)
+    (lemSinglContr S1)
 
 
-rotIsEquiv : (a : OldCircle) -> IsEquiv OldCircle OldCircle (rot a) = split
-   base -> lemSinglContr OldCircle
+rotIsEquiv : (a : S1) -> IsEquiv S1 S1 (rot a) = split
+   base -> lemSinglContr S1
    loop @ x -> rotIsEquiv_loop @ x
 
-rotpath (x : OldCircle) : Path U OldCircle OldCircle = ua OldCircle OldCircle (rot x, rotIsEquiv x)
+rotpath (x : S1) : Path U S1 S1 = ua S1 S1 (rot x, rotIsEquiv x)
 
 -- -- too slow if we allow this to reduce always
--- rotright_IsEquiv_base : Unit -> IsEquiv OldCircle OldCircle (\ (a : OldCircle) -> rot a base) = split
---   tt -> transport (<x> IsEquiv OldCircle OldCircle (\ (a : OldCircle) -> rot_unit_r a @ -x)) (idfun_IsEquiv OldCircle)
+-- rotright_IsEquiv_base : Unit -> IsEquiv S1 S1 (\ (a : S1) -> rot a base) = split
+--   tt -> transport (<x> IsEquiv S1 S1 (\ (a : S1) -> rot_unit_r a @ -x)) (idfun_IsEquiv S1)
 
--- rotright_IsEquiv : (b : OldCircle) -> IsEquiv OldCircle OldCircle (\ (a : OldCircle) -> rot a b) = split
+-- rotright_IsEquiv : (b : S1) -> IsEquiv S1 S1 (\ (a : S1) -> rot a b) = split
 --   base -> rotright_IsEquiv_base STUCK
---   loop@x -> use_IsEquiv_level_het OldCircle OldCircle
---             (\ (a : OldCircle) -> rot a base) (\ (a : OldCircle) -> rot a base)
---             (<x> \ (a : OldCircle) -> rot a (loop{OldCircle} @ x))
+--   loop@x -> use_IsEquiv_level_het S1 S1
+--             (\ (a : S1) -> rot a base) (\ (a : S1) -> rot a base)
+--             (<x> \ (a : S1) -> rot a (loop{S1} @ x))
 --             (rotright_IsEquiv_base STUCK)
 --             (rotright_IsEquiv_base STUCK) @ x
 
--- rotpath_right (b : OldCircle) : Path U OldCircle OldCircle =
---   ua OldCircle OldCircle (\ (x : OldCircle) -> rot x b) (rotright_IsEquiv b)
+-- rotpath_right (b : S1) : Path U S1 S1 =
+--   ua S1 S1 (\ (x : S1) -> rot x b) (rotright_IsEquiv b)
 
 -- -- evidence that a rotated by something is b
--- Rot (a : OldCircle) (b : OldCircle) : U = (c : OldCircle) * PathP (rotpath c) a b
+-- Rot (a : S1) (b : S1) : U = (c : S1) * PathP (rotpath c) a b
 
 -- -- only uses the hspace axioms, so would work for the general hopf construction
--- Rot_level (a : OldCircle) (b : OldCircle) : Contractible (Rot a b) =
---  transport (<x> Contractible (((c : OldCircle) * equiv c STUCK @ -x))) (Singleton_level OldCircle (transport (<x> rotpath_right a @ -x) b))
+-- Rot_level (a : S1) (b : S1) : Contractible (Rot a b) =
+--  transport (<x> Contractible (((c : S1) * equiv c STUCK @ -x))) (Singleton_level S1 (transport (<x> rotpath_right a @ -x) b))
 --  where
---   equiv (c : OldCircle) : Unit -> Path U (PathP (rotpath c) a b) (Path OldCircle (transport (<x> rotpath_right a @ -x) b) c) = split
+--   equiv (c : S1) : Unit -> Path U (PathP (rotpath c) a b) (Path S1 (transport (<x> rotpath_right a @ -x) b) c) = split
 --    tt ->
 --     compU (PathP (rotpath c) a b)
---           (Path OldCircle (transport (rotpath c) a) b)
---           (Path OldCircle (transport (<x> rotpath_right a @ -x) b) c)
---           (<x> hom_to_het_1_path OldCircle OldCircle (rotpath c) a b @ -x)
---           (compU (Path OldCircle (rot c a) b)
---                  (Path OldCircle c (transport (<x> rotpath_right a @ -x) b))
---                  (Path OldCircle (transport (<x> rotpath_right a @ -x) b) c)
---                  (move_transport_right_path OldCircle OldCircle (rotpath_right a) c b)
---                  (inv_path OldCircle c (transport (<x> rotpath_right a @ -x) b)))
+--           (Path S1 (transport (rotpath c) a) b)
+--           (Path S1 (transport (<x> rotpath_right a @ -x) b) c)
+--           (<x> hom_to_het_1_path S1 S1 (rotpath c) a b @ -x)
+--           (compU (Path S1 (rot c a) b)
+--                  (Path S1 c (transport (<x> rotpath_right a @ -x) b))
+--                  (Path S1 (transport (<x> rotpath_right a @ -x) b) c)
+--                  (move_transport_right_path S1 S1 (rotpath_right a) c b)
+--                  (inv_path S1 c (transport (<x> rotpath_right a @ -x) b)))
 
--- findRot (a : OldCircle) (b : OldCircle) : Rot a b = (Rot_level a b).1
--- anyRot (a : OldCircle) (b : OldCircle) (r : Rot a b) : Path (Rot a b) (findRot a b) r = (Rot_level a b).2 r
+-- findRot (a : S1) (b : S1) : Rot a b = (Rot_level a b).1
+-- anyRot (a : S1) (b : S1) (r : Rot a b) : Path (Rot a b) (findRot a b) r = (Rot_level a b).2 r
 
 -- rot is commutative, but we don't use this fact below
 
--- rot_comm_square : (a : OldCircle) -> PathP (<x> Path OldCircle (rot a (loop{OldCircle}@x)) (rotLoop a @ x))
+-- rot_comm_square : (a : S1) -> PathP (<x> Path S1 (rot a (loop{S1}@x)) (rotLoop a @ x))
 --                                   (rot_unit_r a)
 --                                   (rot_unit_r a) = split
---    base -> <x><y>loop{OldCircle}@x
---    loop@z -> <x> <y> (rotLoop (loop{OldCircle}@z) @ x)
+--    base -> <x><y>loop{S1}@x
+--    loop@z -> <x> <y> (rotLoop (loop{S1}@z) @ x)
 
--- rot_comm (a : OldCircle) : (b : OldCircle) -> Path OldCircle (rot a b) (rot b a) = split
+-- rot_comm (a : S1) : (b : S1) -> Path S1 (rot a b) (rot b a) = split
 --    base -> rot_unit_r a
 --    loop @ x -> rot_comm_square a @ x
