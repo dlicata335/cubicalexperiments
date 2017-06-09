@@ -5,7 +5,7 @@ import susp
 import s1
 import join
 import pointedtypes
--- import helix
+import helix
 
 hopf : S2 -> U = split
   joinl a -> S1
@@ -65,8 +65,6 @@ lemPropFibS1 (P : S1 -> U) (pP : (x:S1) -> HProp (P x)) (bP: P base) : (x:S1) ->
  loop @ i -> lemPropF S1 P pP base base loopS1 bP bP @ i
 
 
-
-{-
 fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
   truncFibOmega
     (itOmega two ptS2)
@@ -78,7 +76,7 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
       hopfOne
       (<_> base)
       one
-      (truncFibOmega ptS2 hopf base two isOneTypeS1 (<_> north))
+      (truncFibOmega ptS2 hopf base two isOneTypeS1 (<_> joinl true))
       (<_> pt (Omega ptS2)))
     p
   where
@@ -95,15 +93,17 @@ fibContrHopfThree (p : (itOmega three ptS2).1) : hopfThree p =
           (\ (y:S1) -> setIsProp (Path S1 base y))
           setLoop)
 
+
+
 -- The map h from 9.3
 hopfLoop (p : (itOmega three ptS2).1) : (itOmega three (ptJoin ptS1 S1)).1 =
   itMapOmegaRefl
     three
-    ((a : S2) * hopf a, (north, base))
+    ((a : S2) * hopf a, (joinl true, base))
     (Join S1 S1)
     totalHopfToJoin
     (itTotalFibOmega three ptS2 hopf base (p, fibContrHopfThree p))
--}
+
 
 e2' (p : (itOmega two ptS2).1) : OmegaS1
  = comp (<i> fibOmega ptS2 hopf base (p @ i)) (<_> base) []
